@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RangVigyaan - An Immersive AI Kolam Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            --glow-color: #e52e71;
+            --accent-color: #ff8a00;
+            --secondary-color: #8a2be2;
+        }
+        @keyframes text-shine { to { background-position: 200% center; } }
+        @keyframes fade-in-up { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes card-cascade-in { 0% { opacity: 0; transform: scale(0.9) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes toast-in { 0% { opacity: 0; transform: translateX(100%); } 100% { opacity: 1; transform: translateX(0); } }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(229, 46, 113, 0.5), 0 0 30px rgba(229, 46, 113, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(229, 46, 113, 0.8), 0 0 50px rgba(229, 46, 113, 0.5); }
+        }
+
+        /* --- CRAZY QUOTE ANIMATIONS --- */
+        @keyframes quote-spin-in {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5) rotate(-180deg); filter: blur(10px); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); filter: blur(0px); }
+        }
+        @keyframes quote-spin-out {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); filter: blur(0px); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5) rotate(180deg); filter: blur(10px); }
+        }
+        @keyframes quote-zoom-drift-in {
+             0% { opacity: 0; transform: translate(calc(-50% + var(--drift-x, 0px) * -1), calc(-50% + var(--drift-y, 0px) * -1)) scale(0.6) rotate(var(--start-rotate, 0deg)); }
+             100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+        }
+        @keyframes quote-zoom-drift-out {
+             0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+             100% { opacity: 0; transform: translate(calc(-50% + var(--drift-x, 0px)), calc(-50% + var(--drift-y, 0px))) scale(0.6) rotate(var(--end-rotate, 0deg)); }
+        }
+         @keyframes quote-fade-blur-in {
+             0% { opacity: 0; filter: blur(8px) saturate(0.5); transform: translate(-50%, -50%) scale(0.9); }
+             100% { opacity: 1; filter: blur(0px) saturate(1); transform: translate(-50%, -50%) scale(1); }
+        }
+        @keyframes quote-fade-blur-out {
+             0% { opacity: 1; filter: blur(0px) saturate(1); transform: translate(-50%, -50%) scale(1); }
+             100% { opacity: 0; filter: blur(8px) saturate(0.5); transform: translate(-50%, -50%) scale(0.9); }
+        }
+
+        body { font-family: 'Jost', sans-serif; background-color:rgb(0, 0, 0); color: #f0f0f0; overflow-x: hidden; }
+        a, button, textarea, input, [onclick] { cursor: auto; }
+
+        #three-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
+        .site-container { display: flex; flex-direction: column; min-height: 100vh; }
+        main { flex-grow: 1; padding-bottom: 4rem; }
+        .content-section { display: none; }
+        .content-section.active { display: block; flex-grow: 1; animation: fade-in-up 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+        #ai-kolam.content-section.active { display: flex; }
+
+        /* --- UI Styles --- */
+        .glass-card { --mx: 50%; --my: 50%; background: rgba(18, 18, 18, 0.6); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 1.5rem; position: relative; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); transform-style: preserve-3d; }
+        .glass-card::before { content: ''; position: absolute; left: 0; top: 0; width: 100%; height: 100%; border-radius: inherit; opacity: 0; background: radial-gradient(400px circle at var(--mx) var(--my), rgba(229, 46, 113, 0.2), transparent 80%); transition: opacity 0.4s; z-index: 0; }
+        .glass-card:hover::before { opacity: 1; }
+        .glowing-border::after { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 100%; border-radius: inherit; background: radial-gradient(300px circle at var(--mx) var(--my), var(--glow-color), transparent 40%); z-index: -1; }
+        .card-content-wrapper { position: relative; z-index: 1; transform: translateZ(20px); height: 100%; display: flex; flex-direction: column; }
+        .header-title { font-weight: 700; letter-spacing: 0.1em; background: linear-gradient(to right, var(--accent-color), var(--glow-color), var(--secondary-color), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 25px rgba(229, 46, 113, 0.6); background-size: 200% auto; animation: text-shine 8s linear infinite; }
+        .section-header { text-align: center; margin-bottom: 2rem; }
+        .section-header h2 { font-size: 3rem; font-weight: 700; margin-bottom: 1rem; }
+        .section-header p { font-size: 1.125rem; color: #a0a0a0; max-width: 600px; margin: 0 auto; }
+        .btn { background: linear-gradient(45deg, var(--accent-color), var(--glow-color)); color: white; padding: 0.75rem 1.5rem; border-radius: 9999px; font-weight: 500; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(229, 46, 113, 0.35); }
+        .btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 6px 20px rgba(229, 46, 113, 0.5); }
+
+        nav { background: rgba(10, 10, 10, 0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0; }
+        .nav-link, .nav-icon { position: relative; color: #e0e0e0; transition: color 0.3s; }
+        .nav-link:hover, .nav-icon:hover { color: var(--glow-color); }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 50%; background-color: var(--glow-color); transition: all 0.3s ease; }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; left: 0; }
+        .page-title { color: var(--accent-color); text-shadow: 0 0 10px rgba(255, 138, 0, 0.5); }
+
+        .card-grid { display: grid; gap: 2rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+        .shop-grid { display: grid; gap: 2rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+        .card-item { opacity: 0; animation: card-cascade-in 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; transition: transform 0.1s linear; }
+        .card-item img { aspect-ratio: 16 / 10; object-fit: cover; }
+        .product-card-img { aspect-ratio: 1 / 1 !important; border-radius: 1.5rem 1.5rem 0 0; transform: translateZ(40px); }
+        .icon-btn { background: rgba(255,255,255,0.1); border-radius: 50%; padding: 0.5rem; transition: all 0.2s; }
+        .icon-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+        .icon-btn.active { color: var(--glow-color); background: rgba(229, 46, 113, 0.2); }
+        .nav-counter { position: absolute; top: -5px; right: -8px; background-color: var(--glow-color); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; display: none; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { max-width: 800px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        #toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 200; display: flex; flex-direction: column; gap: 1rem; }
+        .toast { animation: toast-in 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .filter-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #ccc; transition: all 0.3s; width: 100%; text-align: left; padding: 0.75rem 1.5rem; border-radius: 0.75rem; }
+        .filter-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+        .filter-btn.active { background: linear-gradient(45deg, var(--accent-color), var(--glow-color)); color: white; border-color: transparent; }
+
+        /* --- AI KOLAM STYLES --- */
+        /* ... (styles remain the same) ... */
+         .gemini-main { flex-grow: 1; display: flex; flex-direction: column; position: relative; } .gemini-chat-area { flex-grow: 1; overflow-y: auto; padding: 1rem 2rem; padding-bottom: 10rem; } .gemini-input-area { position: fixed; bottom: 1.5rem; left: 0; right: 0; padding: 0 1rem; z-index: 100; } .gemini-input-bar-wrapper { max-width: 840px; margin: 0 auto; } .gemini-input-bar { transition: all 0.3s ease; } .gemini-input-bar:focus-within { border-color: rgba(229, 46, 113, 0.7); box-shadow: 0 0 20px rgba(229, 46, 113, 0.5); } .gemini-input-bar textarea { flex-grow: 1; background: transparent; border: none; color: white; resize: none; min-height: 44px; padding: 0.5rem; font-size: 1rem; } .gemini-input-bar textarea:focus { outline: none; } .gemini-tool-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #ddd; cursor: pointer; transition: background-color 0.2s; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; } .gemini-tool-btn:hover { background-color: rgba(255,255,255,0.1); } .gemini-tool-btn.hidden { display: none; } .chat-message { display: flex; gap: 1rem; max-width: 1280px; margin: 1rem auto; width: 100%; } .ai-message { animation: fade-in-up 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; } .chat-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, var(--accent-color), var(--glow-color)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 10px rgba(229, 46, 113, 0.5); } .chat-avatar i { stroke: white; } .user-message .chat-avatar { background: #333; box-shadow: none; } .user-message .chat-content { padding-top: 0.5rem; } .svg-container { width: 100%; aspect-ratio: 1 / 1; position: relative; z-index: 1; } .analysis-item { animation: fade-in-up 0.5s ease-out forwards; opacity: 0; transform: translateY(10px); } #three-canvas, #kolamCanvas { pointer-events: none !important; z-index: 0 !important; } .gemini-input-area, .gemini-input-bar, .gemini-input-bar textarea, .gemini-tool-btn { position: relative; z-index: 200 !important; pointer-events: auto !important; } .gemini-main { position: relative; z-index: 100; }
+
+        /* Carousel styles */
+        .carousel-slide { flex-shrink: 0; width: 100%; transition: opacity 0.5s ease-in-out; }
+        #carousel-prev, #carousel-next { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .carousel-dot { width: 10px; height: 10px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.4); transition: all 0.3s ease; cursor: pointer; }
+        .carousel-dot:hover { background-color: rgba(255, 255, 255, 0.7); }
+        .carousel-dot.active { background-color: white; transform: scale(1.2); box-shadow: 0 0 10px var(--glow-color); }
+
+        /* Category Section Styles */
+        .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        @media (min-width: 768px) { .category-grid { grid-template-columns: repeat(4, 1fr); } }
+        .category-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .category-card:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 25px rgba(229, 46, 113, 0.4); }
+        .category-icon { stroke-width: 1.5px; }
+
+        /* Mesmerizing Button Styles */
+        .mesmerizing-btn { background: linear-gradient(45deg, var(--accent-color), var(--glow-color), var(--secondary-color)); background-size: 200% 200%; border: none; color: white; padding: 1rem 2.5rem; border-radius: 9999px; font-size: 1.25rem; font-weight: 600; letter-spacing: 0.05em; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); animation: text-shine 6s linear infinite, pulse-glow 3s infinite ease-in-out; box-shadow: 0 0 15px rgba(229, 46, 113, 0.5), 0 0 30px rgba(229, 46, 113, 0.3); position: relative; overflow: hidden; z-index: 1; }
+        .mesmerizing-btn::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 60%); transform: rotate(45deg); opacity: 0; transition: opacity 0.5s ease; z-index: -1; }
+        .mesmerizing-btn:hover { transform: translateY(-4px) scale(1.05); animation-play-state: paused, running; box-shadow: 0 8px 30px rgba(229, 46, 113, 0.7), 0 0 50px rgba(229, 46, 113, 0.5); }
+        .mesmerizing-btn:hover::before { opacity: 1; }
+
+        /* MODIFIED: Dynamic Quote Styles V5 (NO BOX) */
+        #dynamic-quote-container {
+            margin-top: 4rem;
+            height: 25rem;
+            position: relative;
+            overflow: hidden;
+            border-radius: 1rem;
+             box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+             border: 1px solid rgba(138, 43, 226, 0.2);
+        }
+        .quote-wrapper {
+             position: absolute;
+             display: flex; /* Flex still useful for icon/text relation */
+             flex-direction: column; /* Stack icon above text */
+             align-items: center; /* Center items */
+             opacity: 0;
+             will-change: transform, opacity, filter;
+             pointer-events: none;
+             text-align: center;
+             padding: 1rem; /* Padding for spacing */
+             /* Animation, Max width, Top/Left set by JS */
+        }
+        /* REMOVED .quote-content styles */
+
+        .quote-icon {
+             width: 2.5rem;
+             height: 2.5rem;
+             flex-shrink: 0;
+             margin-bottom: 0.75rem;
+             /* Color and glow set by JS */
+        }
+        .quote-text {
+            font-size: 1.25rem; /* Larger text */
+            color: #f5f5f5;
+            font-style: italic;
+            line-height: 1.5;
+            letter-spacing: 0.02em;
+            /* Text shadow (glow) set by JS */
+        }
+
+    </style>
+</head>
+<body class="site-container">
+    <canvas id="three-canvas"></canvas>
+
+    <nav class="sticky top-0 z-50">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0 text-3xl font-bold header-title tracking-normal cursor-pointer" onclick="navigateTo('home')">RangVigyaan</div>
+                <div class="flex items-center space-x-4">
+                    <button class="nav-icon"  id="search-btn" title="Search"><i data-lucide="search"></i></button>
+                    <button class="nav-icon" id="account-btn" title="Account"><i data-lucide="user"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative">
+        <!-- Home Section -->
+        <section id="home" class="content-section">
+            <div class="max-w-7xl mx-auto py-16 px-4 text-center flex flex-col items-center justify-center">
+                <h1 class="text-5xl md:text-7xl font-bold header-title">RANGVIGYAAN</h1>
+                <p class="text-lg md:text-xl mt-4 text-gray-300 tracking-wider">The AI Art Weaver</p>
+                <p class="max-w-3xl mx-auto mt-8 text-gray-400">Welcome to a digital sanctuary where ancient tradition meets artificial intelligence. Generate, learn, create, and own a piece of this beautiful fusion of art and technology.</p>
+
+                <!-- START: Image Carousel -->
+                <div id="home-carousel-container" class="w-full max-w-5xl mx-auto mt-12 relative overflow-hidden rounded-2xl glass-card glowing-border">
+                    <div id="carousel-slides" class="flex transition-transform duration-500 ease-in-out">
+                        <script>
+                            for (let i = 1; i <= 13; i++) {
+                                document.write(`
+                                <div class="carousel-slide">
+                                    <img src="t_img${i}.jpg"
+                                         alt="RangVigyaan Gallery Image ${i}"
+                                         class="w-full h-auto object-cover"
+                                         onerror="this.src='https://placehold.co/1200x675/8a2be2/white?text=t_img${i}.jpg'; this.onerror=null;">
+                                </div>
+                                `);
+                            }
+                        </script>
+                    </div>
+                    <button id="carousel-prev" class="absolute top-1/2 left-4 -translate-y-1/2 p-3 bg-black/30 rounded-full text-white hover:bg-black/50 transition-colors z-10">
+                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                    </button>
+                    <button id="carousel-next" class="absolute top-1/2 right-4 -translate-y-1/2 p-3 bg-black/30 rounded-full text-white hover:bg-black/50 transition-colors z-10">
+                        <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                    </button>
+                    <div id="carousel-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10"></div>
+                </div>
+                <!-- END: Image Carousel -->
+
+                <!-- START: Category Section -->
+                <div class="w-full max-w-5xl mx-auto mt-16 px-4">
+                    <div class="category-grid">
+                        <div class="glass-card glowing-border category-card cursor-pointer" onclick="navigateTo('ai-kolam')"><div class="card-content-wrapper p-6 flex flex-col items-center text-center"><i data-lucide="palette" class="w-10 h-10 mb-3 text-pink-400 category-icon"></i><h3 class="text-lg font-semibold text-white">AI Kolam</h3><p class="text-sm text-gray-400 mt-1">Generate unique patterns</p></div></div>
+                        <div class="glass-card glowing-border category-card cursor-pointer" onclick="navigateTo('shop')"><div class="card-content-wrapper p-6 flex flex-col items-center text-center"><i data-lucide="shopping-bag" class="w-10 h-10 mb-3 text-orange-400 category-icon"></i><h3 class="text-lg font-semibold text-white">Shop</h3><p class="text-sm text-gray-400 mt-1">Own AI-generated art</p></div></div>
+                        <div class="glass-card glowing-border category-card cursor-pointer" onclick="navigateTo('learn')"><div class="card-content-wrapper p-6 flex flex-col items-center text-center"><i data-lucide="book-open" class="w-10 h-10 mb-3 text-purple-400 category-icon"></i><h3 class="text-lg font-semibold text-white">Learn</h3><p class="text-sm text-gray-400 mt-1">Discover the history</p></div></div>
+                        <div class="glass-card glowing-border category-card cursor-pointer" onclick="navigateTo('gallery-3d')"><div class="card-content-wrapper p-6 flex flex-col items-center text-center"><i data-lucide="image" class="w-10 h-10 mb-3 text-blue-400 category-icon"></i><h3 class="text-lg font-semibold text-white">Art Hub</h3><p class="text-sm text-gray-400 mt-1">Explore 3D & Mandalas</p></div></div>
+                    </div>
+                </div>
+                <!-- END: Category Section -->
+
+                <!-- START: Explore Gallery Button Section -->
+                <div class="w-full max-w-5xl mx-auto mt-20 px-4 text-center">
+                    <p class="text-lg text-gray-300 mb-6 tracking-wide">Experience the Fusion</p>
+                    <button class="mesmerizing-btn" onclick="navigateTo('gallery-3d')">Explore the Gallery</button>
+                </div>
+                <!-- END: Explore Gallery Button Section -->
+
+                <!-- START: Dynamic Quote Section -->
+                <div id="dynamic-quote-container" class="w-full max-w-5xl mx-auto mt-16 px-4">
+                    <!-- Quotes will be injected here dynamically -->
+                </div>
+                <!-- END: Dynamic Quote Section -->
+
+            </div>
+        </section>
+
+        <!-- Other sections remain unchanged, ensure their content exists -->
+         <section id="ai-kolam" class="content-section">
+             <div class="flex-grow flex flex-col">
+                <main class="gemini-main">
+                    <div id="gemini-chat-area" class="gemini-chat-area">
+                        <div id="chat-welcome" class="text-center text-gray-400 p-8 max-w-3xl mx-auto">
+                            <h2 class="text-5xl md:text-6xl font-bold header-title mb-4">AI Kolam Weaver</h2>
+                            <p class="text-lg">Describe a Rangoli, and I will bring it to life. <br> What beautiful pattern are we creating today?</p>
+                        </div>
+                    </div>
+                    <div class="gemini-input-area">
+                        <div class="gemini-input-bar-wrapper">
+                            <div class="gemini-input-bar glass-card flex items-center p-2 gap-2">
+                                <button class="gemini-tool-btn" title="Upload Image"><i data-lucide="image"></i></button>
+                                <textarea id="prompt-input" rows="1" placeholder="e.g., a symmetrical flower with eight petals" class="flex-grow bg-transparent border-none text-white resize-none p-2 text-base focus:outline-none"></textarea>
+                                <button id="send-btn" class="gemini-tool-btn hidden" title="Send"><i data-lucide="arrow-up"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </section>
+        <section id="shop" class="content-section">
+            <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+                <aside class="md:col-span-1 md:sticky top-28 md:max-h-[calc(100vh-8rem)] overflow-y-auto">
+                    <div class="glass-card p-6">
+                        <div class="card-content-wrapper">
+                            <h3 class="text-2xl font-bold page-title mb-6">Categories</h3>
+                            <div id="filter-container" class="flex flex-col gap-3">
+                                <button class="filter-btn active" data-category="all">All</button>
+                                <button class="filter-btn" data-category="dress">Dresses</button>
+                                <button class="filter-btn" data-category="bag">Bags</button>
+                                <button class="filter-btn" data-category="pillow">Pillow Covers</button>
+                                <button class="filter-btn" data-category="wall">Wall Hangings</button>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+                <div class="md:col-span-3">
+                    <div class="section-header !text-left !mb-8">
+                        <h2 class="header-title !text-5xl">Art You Can Own</h2>
+                        <p class="!max-w-none !mx-0 !text-gray-300">Bring the magic of RangVigyaan into your life. Explore our curated collection, all featuring unique AI-generated designs.</p>
+                    </div>
+                    <div id="product-grid" class="shop-grid"></div>
+                </div>
+            </div>
+        </section>
+        <section id="learn" class="content-section">
+            <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+                <div class="section-header">
+                    <h2 class="header-title">The Lore of Lines</h2>
+                    <p>Discover the rich history, deep symbolism, and sacred geometry behind the timeless art of Kolam and Mandalas.</p>
+                </div>
+                <div class="space-y-12">
+                         <div class="card-item glass-card glowing-border">
+                            <div class="card-content-wrapper">
+                               <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-8 p-8">
+                                    <img src="ancientKolam.jpeg" alt="Ancient Art of Kolam" class="rounded-xl shadow-2xl w-full">
+                                    <div class="text-center md:text-left">
+                                        <h3 class="text-3xl font-bold page-title mb-4">A Journey Through Time</h3>
+                                        <p class="text-gray-300 mb-6">Kolam is an ancient drawing tradition from Southern India, a form of ephemeral art passed down through generations. Traditionally drawn with rice flour by women at the thresholds of homes, these intricate patterns are more than just decoration; they are a daily ritual of welcome, harmony, and a connection to the cosmos.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-grid">
+                            <div class="card-item glass-card glowing-border">
+                                <div class="card-content-wrapper p-6">
+                                    <h3 class="text-xl font-bold page-title mb-2">Symbolism in Patterns</h3>
+                                    <p class="text-gray-400">Each element in a Kolam has meaning. The lotus represents purity and creation, intertwined knots signify eternity and the cycle of life, and geometric shapes evoke cosmic order. They are visual prayers for prosperity and well-being.</p>
+                                </div>
+                            </div>
+                             <div class="card-item glass-card glowing-border">
+                                <div class="card-content-wrapper p-6">
+                                    <h3 class="text-xl font-bold page-title mb-2">The Sacred Geometry</h3>
+                                    <p class="text-gray-400">Kolam designs are a beautiful expression of mathematical principles. Built around a grid of dots, they explore concepts of symmetry, fractals, and algorithms. This mathematical precision is believed to create a field of harmonious energy.</p>
+                                </div>
+                            </div>
+                             <div class="card-item glass-card glowing-border">
+                                <div class="card-content-wrapper p-6">
+                                    <h3 class="text-xl font-bold page-title mb-2">From Flour to Pixels</h3>
+                                    <p class="text-gray-400">While traditionally made with rice flour, the art form has evolved. Today, artists and technologists explore these ancient patterns through digital art, 3D modeling, and even AI, bringing a timeless tradition into a new, futuristic dimension.</p>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </section>
+        <section id="diy-kits" class="content-section">
+                 <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+                    <div class="section-header">
+                        <h2 class="header-title">Create Your Own Magic</h2>
+                        <p>Unleash the artist within. Our DIY hardware kits provide a hands-on experience for children and adults to practice the timeless arts of Rangoli and Mandala making.</p>
+                    </div>
+                    <div class="card-item glass-card glowing-border">
+                         <div class="card-content-wrapper">
+                            <div class="grid grid-cols-1 md:grid-cols-2 items-center gap-8 p-8 md:p-12">
+                                <img src="diyKit.jpeg" alt="DIY Rangoli and Mandala Kit" class="rounded-xl shadow-2xl w-full">
+                                <div class="text-center md:text-left">
+                                    <h3 class="text-3xl font-bold page-title mb-4">The RangVigyaan Explorer Kit</h3>
+                                    <p class="text-gray-300 mb-6">Unleash your creativity with this vibrant DIY Rangoli kit! 🎨
+                                        A perfect blend of art and mindfulness, it helps you relax while crafting beauty.
+                                        Boost focus, express yourself, and add a handmade sparkle to your space.
+                                        Create, unwind, and let your imagination bloom! 🌸✨
+                                        </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </section>
+        <section id="gallery-3d" class="content-section">
+            <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+                <div class="section-header">
+                    <h2 class="header-title">Dimensions of Design</h2>
+                    <p>Explore the mesmerizing depth and form of Kolam and Rangoli in three dimensions. A fusion of tradition and futuristic 3D artistry, rendered to perfection.</p>
+                </div>
+                <div class="card-grid">
+                    <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="31.jpeg" alt="3D Render of a spiral Kolam"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">Crystalline Spiral</h3></div></div></div>
+                    <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="32.jpeg" alt="3D Render of a floral Rangoli"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">Neon Bloom</h3></div></div></div>
+                    <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="33.jpeg" alt="3D Render of a metallic pattern"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">Metalic Weave</h3></div></div></div>
+                    <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="34.jpeg" alt="3D Render of a metallic pattern"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">Chromatic Lotus</h3></div></div></div>
+                </div>
+            </div>
+        </section>
+        <section id="gallery-mandala" class="content-section">
+                 <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+                    <div class="section-header">
+                        <h2 class="header-title">Universe in a Circle</h2>
+                        <p>Lose yourself in the infinite complexity of Mandalas. Each design is a journey to the center of the self, generated by AI to inspire meditation and awe.</p>
+                    </div>
+                    <div class="card-grid">
+                        <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="m1.jpeg" alt="Intricate black and white Mandala"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">₹199 Peacock's Grace</h3></div></div></div>
+                        <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="m2.jpeg" alt="Colorful vibrant Mandala"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">₹199 Galactic Center</h3></div></div></div>
+                        <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="m3.jpeg" alt="Detailed dot-art Mandala"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">₹199 Stippled Sun</h3></div></div></div>
+                    </div>
+                </div>
+        </section>
+
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- GLOBAL SETUP & E-COMMERCE APP ---
+        const App = { /* ... App object remains unchanged ... */
+             products: [ { id: 1, name: 'Nebula Flow Dress', category: 'dress', price: 799, image: 'img1.jpeg' }, { id: 2, name: 'Geometric Sun Dress', category: 'dress', price: 599, image: 'img2.jpeg' }, { id: 3, name: 'Mandala Maxi Dress', category: 'dress', price: 549, image: 'img3.jpeg' }, { id: 4, name: 'Symmetric Shift Dress', category: 'dress', price: 499, image: 'img4.jpeg' }, { id: 5, name: 'Cosmic Tote Bag', category: 'bag', price: 299, image: 'img5.jpeg' }, { id: 6, name: 'Lotus Crossbody Bag', category: 'bag', price: 279, image: 'img6.jpeg' }, { id: 7, name: 'Patterned Backpack', category: 'bag', price: 299, image: 'img7.jpeg' }, { id: 8, name: 'Embroidered Pouch', category: 'bag', price: 249, image: 'img8.jpeg' }, { id: 9, name: 'Serenity Pillow Cover', category: 'pillow', price: 249, image: 'img9.jpeg' }, { id: 10, name: 'Vibrant Mandala Cushion', category: 'pillow', price: 249, image: 'img10.jpeg' }, { id: 11, name: 'Geometric Accent Pillow', category: 'pillow', price: 249, image: 'img11.jpeg' }, { id: 12, name: 'Kolam Line Art Pillow', category: 'pillow', price: 249, image: 'img12.jpeg' }, { id: 13, name: 'Galaxy Mandala Tapestry', category: 'wall', price: 349, image: 'img13.jpeg' }, { id: 14, name: 'Sun & Moon Wall Art', category: 'wall', price: 299, image: 'img14.jpeg' }, { id: 15, name: 'Seven Chakras Hanging', category: 'wall', price: 299, image: 'img15.jpeg' }, { id: 16, name: 'Digital Bloom Canvas', category: 'wall', price: 299, image: 'img16.jpeg' }, ], state: { cart: [], wishlist: [], orders: [], activeFilter: 'all' }, init() { this.loadState(); this.renderProducts(); this.updateCounters(); this.attachEventListeners(); }, loadState() { const c=localStorage.getItem('rangVigyaan_cart'),w=localStorage.getItem('rangVigyaan_wishlist'),o=localStorage.getItem('rangVigyaan_orders'); if(c)this.state.cart=JSON.parse(c); if(w)this.state.wishlist=JSON.parse(w); if(o)this.state.orders=JSON.parse(o); }, saveState() { localStorage.setItem('rangVigyaan_cart', JSON.stringify(this.state.cart)); localStorage.setItem('rangVigyaan_wishlist', JSON.stringify(this.state.wishlist)); localStorage.setItem('rangVigyaan_orders', JSON.stringify(this.state.orders)); }, renderProducts() { const grid=document.getElementById('product-grid'); if (!grid) return; const filtered=this.state.activeFilter==='all'?this.products:this.products.filter(p=>p.category===this.state.activeFilter); grid.innerHTML=filtered.map(p=>{const inWish=this.state.wishlist.includes(p.id),inCart=this.state.cart.some(i=>i.id===p.id);return ` <div class="card-item glass-card glowing-border" style="animation-delay: ${filtered.indexOf(p)*50}ms"> <div class="card-content-wrapper"> <img src="${p.image}" alt="${p.name}" class="product-card-img"> <div class="p-6 flex-grow flex flex-col"> <h3 class="text-xl font-bold page-title">${p.name}</h3> <div class="mt-4 flex-grow flex justify-between items-center"> <span class="text-2xl font-bold text-white">₹${p.price}</span> <div class="flex items-center gap-2"> <button class="icon-btn wishlist-toggle-btn ${inWish?'active':''}" data-id="${p.id}" title="Wishlist"><i data-lucide="heart"></i></button> <button class="btn !px-4 !py-2 add-to-cart-btn" data-id="${p.id}">${inCart?'In Cart':'Add'}</button> </div> </div> </div> </div> </div>`}).join(''); this.applyMesmerizingEffects(); lucide.createIcons(); }, updateCounters() { const c=this.state.cart.reduce((s,i)=>s+i.quantity,0),w=this.state.wishlist.length,cc=document.getElementById('cart-counter'),wc=document.getElementById('wishlist-counter'); if (cc) { cc.textContent=c; cc.classList.toggle('hidden',c===0); } if (wc) { wc.textContent=w; wc.classList.toggle('hidden',w===0); } }, attachEventListeners() { const pg=document.getElementById('product-grid'); if(pg){pg.addEventListener('click',e=>{const acb=e.target.closest('.add-to-cart-btn'),wtb=e.target.closest('.wishlist-toggle-btn'); if(acb)this.addToCart(parseInt(acb.dataset.id)); if(wtb)this.toggleWishlist(parseInt(wtb.dataset.id));});} const fc=document.getElementById('filter-container'); if(fc){fc.addEventListener('click',e=>{if(e.target.matches('.filter-btn')){const activeBtn = fc.querySelector('.filter-btn.active'); if(activeBtn) activeBtn.classList.remove('active'); e.target.classList.add('active');this.state.activeFilter=e.target.dataset.category;this.renderProducts();}}); } }, addToCart(id) { const i=this.state.cart.find(item=>item.id===id); if(i)i.quantity++; else this.state.cart.push({id,quantity:1}); this.saveState(); this.updateCounters(); this.renderProducts(); }, toggleWishlist(id) { const i=this.state.wishlist.indexOf(id); if(i>-1)this.state.wishlist.splice(i,1); else this.state.wishlist.push(id); this.saveState(); this.updateCounters(); this.renderProducts(); }, applyMesmerizingEffects() { document.querySelectorAll(".card-item, .glass-card.interactive-card").forEach(c=>{c.addEventListener("mousemove",e=>{const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,rx=(y-r.height/2)/(r.height/2)*-8,ry=(x-r.width/2)/(r.width/2)*8;c.style.setProperty("--mx",`${x}px`);c.style.setProperty("--my",`${y}px`);c.style.transform=`perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.05,1.05,1.05)`;});c.addEventListener("mouseleave",()=>{c.style.transition='transform 0.6s cubic-bezier(0.23,1,0.32,1)';c.style.transform='perspective(1000px) rotateX(0) rotateY(0) scale3d(1,1,1)';});c.addEventListener('mouseenter',()=>c.style.transition='transform 0.1s linear');}); }
+        };
+        App.init();
+
+        // --- HOME PAGE CAROUSEL SCRIPT ---
+        const carouselContainer = document.getElementById('home-carousel-container');
+         // ... (Carousel JS remains the same) ...
+        if (carouselContainer) { const slidesContainer = document.getElementById('carousel-slides'); const prevBtn = document.getElementById('carousel-prev'); const nextBtn = document.getElementById('carousel-next'); const dotsContainer = document.getElementById('carousel-dots'); const slides = document.querySelectorAll('.carousel-slide'); const totalSlides = slides.length; let currentIndex = 0; let carouselInterval; function updateDots() { if (!dotsContainer) return; const dots = document.querySelectorAll('.carousel-dot'); dots.forEach((dot, index) => { dot.classList.toggle('active', index === currentIndex); }); } function showSlide(index) { currentIndex = (index + totalSlides) % totalSlides; const offset = -currentIndex * 100; if (slidesContainer) { slidesContainer.style.transform = `translateX(${offset}%)`; } updateDots(); } function startInterval() { clearInterval(carouselInterval); carouselInterval = setInterval(() => { showSlide(currentIndex + 1); }, 5000); } function resetInterval() { startInterval(); } if (dotsContainer && totalSlides > 0) { dotsContainer.innerHTML = ''; for (let i = 0; i < totalSlides; i++) { const dot = document.createElement('button'); dot.classList.add('carousel-dot'); dot.setAttribute('data-index', i); dot.setAttribute('aria-label', `Go to slide ${i + 1}`); dot.addEventListener('click', () => { showSlide(i); resetInterval(); }); dotsContainer.appendChild(dot); } } if(prevBtn) { prevBtn.addEventListener('click', () => { showSlide(currentIndex - 1); resetInterval(); }); } if(nextBtn) { nextBtn.addEventListener('click', () => { showSlide(currentIndex + 1); resetInterval(); }); } if (totalSlides > 0) { showSlide(0); startInterval(); } lucide.createIcons({ nodes: [prevBtn, nextBtn].filter(Boolean) }); }
+
+        // --- DYNAMIC QUOTE SCRIPT (V5 - NO BOX, CRAZY) ---
+        const quotes = [
+            "Art enables us to find ourselves and lose ourselves at the same time.",
+            "Creativity takes courage.",
+            "Every artist dips his brush in his own soul, and paints his own nature into his pictures.",
+            "The patterns of the infinite pulse through every line.",
+            "Where tradition meets the future, beauty unfolds.",
+            "In geometry, find harmony; in color, find life.",
+            "Weaving pixels, painting dreams."
+        ];
+        const quoteIcons = ['flower-2', 'aperture', 'sparkles', 'star', 'sun', 'moon', 'gem', 'atom', 'circle-dashed', 'infinity', 'feather', 'brain-circuit', 'dna'];
+        const VIBRANT_COLORS = ['#ff8a00', '#e52e71', '#8a2be2', '#00bfff', '#32cd32', '#ffcc00', '#ff69b4', '#00ffcc', '#ff5733', '#cc00ff', '#ff0066'];
+        const quoteAnimations = [
+            { in: 'quote-spin-in', out: 'quote-spin-out' },
+            { in: 'quote-zoom-drift-in', out: 'quote-zoom-drift-out' },
+            { in: 'quote-fade-blur-in', out: 'quote-fade-blur-out' },
+        ];
+
+        const quoteContainer = document.getElementById('dynamic-quote-container');
+        let quoteSpawnTimeoutId = null;
+        let isQuoteVisible = false; // Track visibility to prevent *direct* overlap start
+
+        function getRandom(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function spawnQuote() {
+            clearTimeout(quoteSpawnTimeoutId);
+
+            // Only spawn if the container exists and the previous quote has started fading out
+            if (!quoteContainer || isQuoteVisible) {
+                 quoteSpawnTimeoutId = setTimeout(spawnQuote, getRandom(500, 1000)); // Check again soon
+                 return;
+            }
+
+            isQuoteVisible = true; // Mark that a quote *is now spawning*
+
+            // --- Randomize ---
+            const quoteIndex = Math.floor(Math.random() * quotes.length);
+            const iconIndex = Math.floor(Math.random() * quoteIcons.length);
+            const colorIndex = Math.floor(Math.random() * VIBRANT_COLORS.length);
+            const animationIndex = Math.floor(Math.random() * quoteAnimations.length);
+
+            const selectedQuote = quotes[quoteIndex];
+            const selectedIcon = quoteIcons[iconIndex];
+            const selectedColor = VIBRANT_COLORS[colorIndex];
+            const selectedAnimation = quoteAnimations[animationIndex];
+
+            // --- Create Elements ---
+            const wrapper = document.createElement('div');
+            wrapper.className = 'quote-wrapper';
+
+            // REMOVED .quote-content wrapper, apply styles directly to .quote-wrapper if needed
+
+            const iconElement = document.createElement('i');
+            iconElement.classList.add('quote-icon');
+            iconElement.setAttribute('data-lucide', selectedIcon);
+            iconElement.style.color = selectedColor;
+            iconElement.style.filter = `drop-shadow(0 0 18px ${selectedColor}) drop-shadow(0 0 5px ${selectedColor}aa)`;
+
+            const textElement = document.createElement('p');
+            textElement.className = 'quote-text';
+            textElement.textContent = `"${selectedQuote}"`;
+            textElement.style.textShadow = `0 0 15px ${selectedColor}, 0 0 8px ${selectedColor}cc`;
+
+            // Append directly to wrapper
+            wrapper.appendChild(iconElement);
+            wrapper.appendChild(textElement);
+
+            // --- Positioning & Sizing ---
+            const randomTop = getRandom(10, 90); // % (Allow closer to edges)
+            const randomLeft = getRandom(10, 90); // %
+            const randomMaxWidth = getRandom(40, 70); // %
+            wrapper.style.maxWidth = `${randomMaxWidth}%`;
+            wrapper.style.top = `${randomTop}%`;
+            wrapper.style.left = `${randomLeft}%`;
+
+            // --- Animation ---
+            const fadeInDuration = getRandom(1.0, 2.0); // Slightly longer fades possible
+            const visibleDuration = getRandom(4.0, 7.0);
+            const fadeOutDuration = getRandom(1.0, 2.0);
+            const startRotation = getRandom(-30, 30); // Wider rotation range
+            const endRotation = getRandom(-15, 15);
+            const driftX = getRandom(-40, 40); // Wider drift
+            const driftY = getRandom(-40, 40);
+
+            wrapper.style.setProperty('--start-rotate', `${startRotation}deg`);
+            wrapper.style.setProperty('--end-rotate', `${endRotation}deg`);
+            wrapper.style.setProperty('--start-rotate-rev', `${-startRotation}deg`);
+            wrapper.style.setProperty('--drift-x', `${driftX}px`);
+            wrapper.style.setProperty('--drift-y', `${driftY}px`);
+
+            // Apply animation IN
+            wrapper.style.animation = `${selectedAnimation.in} ${fadeInDuration}s cubic-bezier(0.1, 0.7, 0.3, 1) forwards`; // Adjusted easing
+
+            // --- Add to DOM ---
+            quoteContainer.appendChild(wrapper);
+            lucide.createIcons({ nodes: [iconElement] });
+
+            // --- Schedule Fade Out & Removal ---
+            const fadeOutStartTime = (fadeInDuration + visibleDuration) * 1000;
+            setTimeout(() => {
+                if (quoteContainer.contains(wrapper)) {
+                    wrapper.style.animation = `${selectedAnimation.out} ${fadeOutDuration}s cubic-bezier(0.7, 0.1, 0.9, 0.3) forwards`; // Adjusted easing
+
+                    // Allow next quote to start spawning *during* fade out
+                    isQuoteVisible = false;
+                    spawnQuote(); // Trigger next spawn
+
+                    setTimeout(() => {
+                        if (quoteContainer.contains(wrapper)) {
+                            quoteContainer.removeChild(wrapper);
+                        }
+                    }, fadeOutDuration * 1000);
+                } else {
+                     isQuoteVisible = false; // Ensure flag is reset if removed early
+                     spawnQuote(); // Try spawning next quote
+                }
+            }, fadeOutStartTime);
+
+            // Note: Next spawn is triggered when the current one starts fading out.
+        }
+
+        if (quoteContainer) {
+            // Start the first quote spawn
+            spawnQuote();
+        }
+
+
+        // --- BACKGROUND & NAVIGATION ---
+        const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000),renderer=new THREE.WebGLRenderer({canvas:document.getElementById('three-canvas'),alpha:true});renderer.setSize(window.innerWidth,window.innerHeight);const pC=5000,pos=new Float32Array(pC*3),cls=new Float32Array(pC*3),bC=[new THREE.Color('#ff8a00'),new THREE.Color('#e52e71'),new THREE.Color('#8a2be2')];for(let i=0;i<pC;i++){pos[i*3]=(Math.random()-0.5)*15;pos[i*3+1]=(Math.random()-0.5)*15;pos[i*3+2]=(Math.random()-0.5)*15;const c=bC[i%bC.length];cls[i*3]=c.r;cls[i*3+1]=c.g;cls[i*3+2]=c.b;}const parts=new THREE.BufferGeometry();parts.setAttribute('position',new THREE.BufferAttribute(pos,3));parts.setAttribute('color',new THREE.BufferAttribute(cls,3));const pSys=new THREE.Points(parts,new THREE.PointsMaterial({size:0.02,vertexColors:true,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending}));scene.add(pSys);camera.position.z=5;const clock=new THREE.Clock(),mouse=new THREE.Vector2();window.addEventListener('mousemove',e=>{mouse.x=(e.clientX/window.innerWidth)*2-1;mouse.y=-(e.clientY/window.innerHeight)*2+1;});function animateThree(){requestAnimationFrame(animateThree);const eT=clock.getElapsedTime();pSys.rotation.y=eT*0.05;camera.position.x+=(mouse.x*0.8-camera.position.x)*0.04;camera.position.y+=(mouse.y*0.8-camera.position.y)*0.04;camera.lookAt(scene.position);renderer.render(scene,camera);}animateThree();
+
+        window.navigateTo=function(id){
+            document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));
+            const ts=document.getElementById(id);
+            if(ts) ts.classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(l => {
+                l.classList.toggle('active', l.getAttribute('href').substring(1) === id);
+            });
+             if(ts){ window.scrollTo({ top: ts.offsetTop - 80, behavior: 'smooth' }); }
+        };
+
+        document.querySelectorAll('.nav-link').forEach(l=>l.addEventListener('click',e=>{e.preventDefault();navigateTo(e.target.getAttribute('href').substring(1));}));
+
+        // --- AI KOLAM SCRIPT ---
+        let isDrawing = false;
+        const aiDesignLibrary = { /* ... AI design library ... */
+             'default': { descriptiveText: "An excellent choice. Here is a beautiful, perfectly symmetrical flower design with eight petals. Watch as ancient art and modern tech weave together to create it.", drawingCommands: [ ...Array(8).fill(0).map((_, i) => { const angle = (i/8)*2*Math.PI; const x = 250+120*Math.cos(angle); const y = 250+120*Math.sin(angle); return { path: `M ${x-3} ${y} A 3 3 0 1 1 ${x+3} ${y} A 3 3 0 1 1 ${x-3} ${y}`, color: 'white', fill: 'white' }; }), { path: "M 220 250 A 30 30 0 1 1 280 250 A 30 30 0 1 1 220 250", color: "#8a2be2"}, ...Array(8).fill(0).map((_, i) => { return { path: "M 250 250 Q 180 150, 250 50 Q 320 150, 250 250 Z", color: i % 2 === 0 ? "#ff8a00" : "#e52e71", transform: `rotate(${i * 45}, 250, 250)` }; }) ], historicContext: "Floral motifs are universal symbols of life, beauty, and purity, found in decorative traditions worldwide, from ancient Egyptian lotuses to Indian Rangoli.", mathAndScience: "The flower is constructed using <strong>Polar Coordinates</strong>. Each petal's position is defined by an angle and a distance from the center, a core concept in geometry." },
+         };
+        const promptInput = document.getElementById('prompt-input');
+        const sendBtn = document.getElementById('send-btn');
+        const chatArea = document.getElementById('gemini-chat-area');
+
+        if(promptInput && sendBtn && chatArea) { /* ... AI Kolam event listeners ... */
+             promptInput.addEventListener('input', () => sendBtn.classList.toggle('hidden', promptInput.value.trim().length === 0)); sendBtn.addEventListener('click', handlePrompt); promptInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handlePrompt(); } });
+        }
+        function handlePrompt() { /* ... AI Kolam handlePrompt ... */
+            const promptText = promptInput.value.trim(); if (isDrawing || promptText === '') return; document.getElementById('chat-welcome')?.remove(); isDrawing = true; promptInput.value = ''; addMessageToChat(promptText, 'user'); const thinkingMessage = addMessageToChat('...', 'ai', true); setTimeout(() => { const aiResponse = aiDesignLibrary['default']; thinkingMessage.remove(); addMessageWithKolam(aiResponse); isDrawing = false; sendBtn.classList.add('hidden'); }, 1500);
+        }
+        function addMessageToChat(content, role, isThinking = false) { /* ... AI Kolam addMessageToChat ... */
+            const msg = document.createElement('div'); msg.className = `chat-message ${role}-message`; const icon = role === 'user' ? 'pen-square' : 'palette'; const thinkingHTML = `<div class="flex gap-2 items-center"><div class="w-2 h-2 bg-white rounded-full animate-pulse"></div><div class="w-2 h-2 bg-white rounded-full animate-pulse [animation-delay:0.2s]"></div><div class="w-2 h-2 bg-white rounded-full animate-pulse [animation-delay:0.4s]"></div></div>`; const contentHTML = isThinking ? thinkingHTML : `<p>${content}</p>`; msg.innerHTML = `<div class="chat-avatar"><i data-lucide="${icon}"></i></div><div class="chat-content w-full">${contentHTML}</div>`; chatArea.appendChild(msg); lucide.createIcons({ nodes: [msg] }); chatArea.scrollTop = chatArea.scrollHeight; return msg;
+         }
+        function addMessageWithKolam(response) { /* ... AI Kolam addMessageWithKolam ... */
+            const msg = document.createElement('div'); msg.className = 'chat-message ai-message'; msg.innerHTML = ` <div class="chat-avatar"><i data-lucide="palette"></i></div> <div class="chat-content w-full"> <p class="mb-4 text-gray-300">${response.descriptiveText}</p> <div class="flex flex-col gap-6 items-center"> <div class="w-full max-w-lg flex flex-col gap-6"> <div class="svg-container glass-card glowing-border p-2 sm:p-4 card-item"> <div class="card-content-wrapper"></div> </div> <div class="glass-card glowing-border p-6 card-item"> </div> </div> </div> </div>`; chatArea.appendChild(msg); lucide.createIcons({ nodes: [msg] }); animateSVGPaths(msg.querySelector('.svg-container .card-content-wrapper'), response.drawingCommands); App.applyMesmerizingEffects(); chatArea.scrollTop = chatArea.scrollHeight;
+         }
+        async function animateSVGPaths(container, commands) { /* ... AI Kolam animateSVGPaths ... */
+             container.innerHTML = ''; const svgNS = "http://www.w3.org/2000/svg"; const svg = document.createElementNS(svgNS, 'svg'); svg.setAttribute('viewBox', '0 0 500 500'); svg.style.position = 'absolute'; svg.style.width = '100%'; svg.style.height = '100%'; container.appendChild(svg); const dots = commands.filter(c=>c.fill==='white'), lines=commands.filter(c=>c.fill!=='white'); for(const c of dots){const p=document.createElementNS(svgNS,'path');p.setAttribute('d',c.path);p.setAttribute('fill',c.fill);p.setAttribute('stroke',c.color);p.style.transformOrigin='center';p.style.transform='scale(0)';p.style.transition='transform 0.2s ease-out';svg.appendChild(p);await new Promise(r=>setTimeout(r,25));p.style.transform='scale(1)';await new Promise(r=>setTimeout(r,50));} await new Promise(r=>setTimeout(r,800)); for(const c of lines){const p=document.createElementNS(svgNS,'path');p.setAttribute('d',c.path);p.setAttribute('fill','none');p.setAttribute('stroke',c.color);p.setAttribute('stroke-width','4');p.setAttribute('stroke-linecap','round');if(c.transform)p.setAttribute('transform',c.transform);svg.appendChild(p);const len=p.getTotalLength();if(len>0){p.style.strokeDasharray=len;p.style.strokeDashoffset=len;await new Promise(res=>{p.getBoundingClientRect();const dur=len/400;p.style.transition=`stroke-dashoffset ${dur}s ease-in-out`;p.style.strokeDashoffset='0';setTimeout(res,dur*1000);});}}
+        }
+
+        // Initial setup
+        document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));
+        document.getElementById('home').classList.add('active');
+        document.querySelector('.header-title.cursor-pointer').addEventListener('click', () => navigateTo('home'));
+        lucide.createIcons();
+    });
+
+    /* clickEventHandle (remains the same) */
+    document.addEventListener("DOMContentLoaded", function () { const cards = document.querySelectorAll("#shop .card-item, #gallery-3d .card-item, #gallery-mandala .card-item, #learn .card-item, #diy-kits .card-item"); cards.forEach(card => { const hasButton = card.querySelector('button'); if (!hasButton && !card.closest('.category-grid')) { card.addEventListener("click", () => { window.location.href = "https://rangvigyaan.netlify.app"; }); } }); });
+    </script>
+</body>
+</html>
+
