@@ -10,8 +10,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
+
         :root {
-            --glow-color: #e52e71;
+            --glow-color: #8a2be2; /* CHANGED from #e52e71 */
+            --glow-color: #00000000;
             --accent-color: #ff8a00;
             --secondary-color: #8a2be2;
         }
@@ -20,8 +22,8 @@
         @keyframes card-cascade-in { 0% { opacity: 0; transform: scale(0.9) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes toast-in { 0% { opacity: 0; transform: translateX(100%); } 100% { opacity: 1; transform: translateX(0); } }
         @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 15px rgba(229, 46, 113, 0.5), 0 0 30px rgba(229, 46, 113, 0.3); }
-            50% { box-shadow: 0 0 25px rgba(229, 46, 113, 0.8), 0 0 50px rgba(229, 46, 113, 0.5); }
+            0%, 100% { box-shadow: 0 0 15px rgba(138, 43, 226, 0.5), 0 0 30px rgba(138, 43, 226, 0.3); } /* CHANGED */
+            50% { box-shadow: 0 0 25px rgba(138, 43, 226, 0.8), 0 0 50px rgba(138, 43, 226, 0.5); } /* CHANGED */
         }
 
         /* --- CRAZY QUOTE ANIMATIONS --- */
@@ -50,7 +52,7 @@
              100% { opacity: 0; filter: blur(8px) saturate(0.5); transform: translate(-50%, -50%) scale(0.9); }
         }
 
-        body { font-family: 'Jost', sans-serif; background-color:rgb(0, 0, 0); color: #f0f0f0; overflow-x: hidden; }
+        body { font-family: 'Jost', sans-serif; background-color:rgb(255, 255, 255); color: #f0f0f0; overflow-x: hidden; }
         a, button, textarea, input, [onclick] { cursor: auto; }
 
         #three-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
@@ -62,20 +64,24 @@
 
         /* --- UI Styles --- */
         .glass-card { --mx: 50%; --my: 50%; background: rgba(18, 18, 18, 0.6); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 1.5rem; position: relative; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); transform-style: preserve-3d; }
-        .glass-card::before { content: ''; position: absolute; left: 0; top: 0; width: 100%; height: 100%; border-radius: inherit; opacity: 0; background: radial-gradient(400px circle at var(--mx) var(--my), rgba(229, 46, 113, 0.2), transparent 80%); transition: opacity 0.4s; z-index: 0; }
+        .glass-card::before { content: ''; position: absolute; left: 0; top: 0; width: 100%; height: 100%; border-radius: inherit; opacity: 0; background: radial-gradient(400px circle at var(--mx) var(--my), rgba(138, 43, 226, 0.2), transparent 80%); transition: opacity 0.4s; z-index: 0; } /* CHANGED */
         .glass-card:hover::before { opacity: 1; }
         .glowing-border::after { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 100%; border-radius: inherit; background: radial-gradient(300px circle at var(--mx) var(--my), var(--glow-color), transparent 40%); z-index: -1; }
         .card-content-wrapper { position: relative; z-index: 1; transform: translateZ(20px); height: 100%; display: flex; flex-direction: column; }
-        .header-title { font-weight: 700; letter-spacing: 0.1em; background: linear-gradient(to right, var(--accent-color), var(--glow-color), var(--secondary-color), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 25px rgba(229, 46, 113, 0.6); background-size: 200% auto; animation: text-shine 8s linear infinite; }
+        .header-title { font-weight: 700; letter-spacing: 0.1em; background: linear-gradient(to right, var(--accent-color), var(--glow-color), var(--secondary-color), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 25px rgba(138, 43, 226, 0.6); background-size: 200% auto; animation: text-shine 8s linear infinite; } /* CHANGED */
+        .header-title{
+            background-color: #3d2626;
+        }
         .section-header { text-align: center; margin-bottom: 2rem; }
         .section-header h2 { font-size: 3rem; font-weight: 700; margin-bottom: 1rem; }
         .section-header p { font-size: 1.125rem; color: #a0a0a0; max-width: 600px; margin: 0 auto; }
-        .btn { background: linear-gradient(45deg, var(--accent-color), var(--glow-color)); color: white; padding: 0.75rem 1.5rem; border-radius: 9999px; font-weight: 500; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(229, 46, 113, 0.35); }
-        .btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 6px 20px rgba(229, 46, 113, 0.5); }
+        .btn { background: linear-gradient(45deg, var(--accent-color), var(--glow-color)); color: white; padding: 0.75rem 1.5rem; border-radius: 9999px; font-weight: 500; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(138, 43, 226, 0.35); } /* CHANGED */
+        .btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 6px 20px rgba(138, 43, 226, 0.5); } /* CHANGED */
 
         nav { background: rgba(10, 10, 10, 0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0; }
+        nav { background: #3d2626;}
         .nav-link, .nav-icon { position: relative; color: #e0e0e0; transition: color 0.3s; }
-        .nav-link:hover, .nav-icon:hover { color: var(--glow-color); }
+        .nav-link:hover, .nav-icon:hover { color: /*var(--glow-color)*/ #ff0000; }
         .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 50%; background-color: var(--glow-color); transition: all 0.3s ease; }
         .nav-link:hover::after, .nav-link.active::after { width: 100%; left: 0; }
         .page-title { color: var(--accent-color); text-shadow: 0 0 10px rgba(255, 138, 0, 0.5); }
@@ -87,7 +93,7 @@
         .product-card-img { aspect-ratio: 1 / 1 !important; border-radius: 1.5rem 1.5rem 0 0; transform: translateZ(40px); }
         .icon-btn { background: rgba(255,255,255,0.1); border-radius: 50%; padding: 0.5rem; transition: all 0.2s; }
         .icon-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
-        .icon-btn.active { color: var(--glow-color); background: rgba(229, 46, 113, 0.2); }
+        .icon-btn.active { color: var(--glow-color); background: rgba(138, 43, 226, 0.2); } /* CHANGED */
         .nav-counter { position: absolute; top: -5px; right: -8px; background-color: var(--glow-color); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; display: none; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
@@ -100,7 +106,7 @@
 
         /* --- AI KOLAM STYLES --- */
         /* ... (styles remain the same) ... */
-         .gemini-main { flex-grow: 1; display: flex; flex-direction: column; position: relative; } .gemini-chat-area { flex-grow: 1; overflow-y: auto; padding: 1rem 2rem; padding-bottom: 10rem; } .gemini-input-area { position: fixed; bottom: 1.5rem; left: 0; right: 0; padding: 0 1rem; z-index: 100; } .gemini-input-bar-wrapper { max-width: 840px; margin: 0 auto; } .gemini-input-bar { transition: all 0.3s ease; } .gemini-input-bar:focus-within { border-color: rgba(229, 46, 113, 0.7); box-shadow: 0 0 20px rgba(229, 46, 113, 0.5); } .gemini-input-bar textarea { flex-grow: 1; background: transparent; border: none; color: white; resize: none; min-height: 44px; padding: 0.5rem; font-size: 1rem; } .gemini-input-bar textarea:focus { outline: none; } .gemini-tool-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #ddd; cursor: pointer; transition: background-color 0.2s; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; } .gemini-tool-btn:hover { background-color: rgba(255,255,255,0.1); } .gemini-tool-btn.hidden { display: none; } .chat-message { display: flex; gap: 1rem; max-width: 1280px; margin: 1rem auto; width: 100%; } .ai-message { animation: fade-in-up 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; } .chat-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, var(--accent-color), var(--glow-color)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 10px rgba(229, 46, 113, 0.5); } .chat-avatar i { stroke: white; } .user-message .chat-avatar { background: #333; box-shadow: none; } .user-message .chat-content { padding-top: 0.5rem; } .svg-container { width: 100%; aspect-ratio: 1 / 1; position: relative; z-index: 1; } .analysis-item { animation: fade-in-up 0.5s ease-out forwards; opacity: 0; transform: translateY(10px); } #three-canvas, #kolamCanvas { pointer-events: none !important; z-index: 0 !important; } .gemini-input-area, .gemini-input-bar, .gemini-input-bar textarea, .gemini-tool-btn { position: relative; z-index: 200 !important; pointer-events: auto !important; } .gemini-main { position: relative; z-index: 100; }
+         .gemini-main { flex-grow: 1; display: flex; flex-direction: column; position: relative; } .gemini-chat-area { flex-grow: 1; overflow-y: auto; padding: 1rem 2rem; padding-bottom: 10rem; } .gemini-input-area { position: fixed; bottom: 1.5rem; left: 0; right: 0; padding: 0 1rem; z-index: 100; } .gemini-input-bar-wrapper { max-width: 840px; margin: 0 auto; } .gemini-input-bar { transition: all 0.3s ease; } .gemini-input-bar:focus-within { border-color: rgba(138, 43, 226, 0.7); box-shadow: 0 0 20px rgba(138, 43, 226, 0.5); } /* CHANGED */ .gemini-input-bar textarea { flex-grow: 1; background: transparent; border: none; color: white; resize: none; min-height: 44px; padding: 0.5rem; font-size: 1rem; } .gemini-input-bar textarea:focus { outline: none; } .gemini-tool-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #ddd; cursor: pointer; transition: background-color 0.2s; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; } .gemini-tool-btn:hover { background-color: rgba(255,255,255,0.1); } .gemini-tool-btn.hidden { display: none; } .chat-message { display: flex; gap: 1rem; max-width: 1280px; margin: 1rem auto; width: 100%; } .ai-message { animation: fade-in-up 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; } .chat-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, var(--accent-color), var(--glow-color)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); } /* CHANGED */ .chat-avatar i { stroke: white; } .user-message .chat-avatar { background: #333; box-shadow: none; } .user-message .chat-content { padding-top: 0.5rem; } .svg-container { width: 100%; aspect-ratio: 1 / 1; position: relative; z-index: 1; } .analysis-item { animation: fade-in-up 0.5s ease-out forwards; opacity: 0; transform: translateY(10px); } #three-canvas, #kolamCanvas { pointer-events: none !important; z-index: 0 !important; } .gemini-input-area, .gemini-input-bar, .gemini-input-bar textarea, .gemini-tool-btn { position: relative; z-index: 200 !important; pointer-events: auto !important; } .gemini-main { position: relative; z-index: 100; }
 
         /* Carousel styles */
         .carousel-slide { flex-shrink: 0; width: 100%; transition: opacity 0.5s ease-in-out; }
@@ -113,14 +119,15 @@
         .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
         @media (min-width: 768px) { .category-grid { grid-template-columns: repeat(4, 1fr); } }
         .category-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .category-card:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 25px rgba(229, 46, 113, 0.4); }
+        .category-card:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 25px rgba(138, 43, 226, 0.4); } /* CHANGED */
         .category-icon { stroke-width: 1.5px; }
 
         /* Mesmerizing Button Styles */
-        .mesmerizing-btn { background: linear-gradient(45deg, var(--accent-color), var(--glow-color), var(--secondary-color)); background-size: 200% 200%; border: none; color: white; padding: 1rem 2.5rem; border-radius: 9999px; font-size: 1.25rem; font-weight: 600; letter-spacing: 0.05em; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); animation: text-shine 6s linear infinite, pulse-glow 3s infinite ease-in-out; box-shadow: 0 0 15px rgba(229, 46, 113, 0.5), 0 0 30px rgba(229, 46, 113, 0.3); position: relative; overflow: hidden; z-index: 1; }
+        .mesmerizing-btn { background: linear-gradient(45deg, var(--accent-color), /* var(--glow-color)*/ #e39610, var(--secondary-color)); background-size: 200% 200%; border: none; color: white; padding: 1rem 2.5rem; border-radius: 9999px; font-size: 1.25rem; font-weight: 600; letter-spacing: 0.05em; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* animation: text-shine 6s linear infinite  pulse-glow 3s infinite ease-in-out; */ box-shadow: 0 0 15px rgba(138, 43, 226, 0.5), 0 0 30px rgba(138, 43, 226, 0.3); position: relative; overflow: hidden; z-index: 1; } /* CHANGED */
         .mesmerizing-btn::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 60%); transform: rotate(45deg); opacity: 0; transition: opacity 0.5s ease; z-index: -1; }
-        .mesmerizing-btn:hover { transform: translateY(-4px) scale(1.05); animation-play-state: paused, running; box-shadow: 0 8px 30px rgba(229, 46, 113, 0.7), 0 0 50px rgba(229, 46, 113, 0.5); }
+        .mesmerizing-btn:hover { transform: translateY(-4px) scale(1.05); animation-play-state: paused, running; box-shadow: 0 8px 30px rgba(138, 43, 226, 0.7), 0 0 50px rgba(138, 43, 226, 0.5); } /* CHANGED */
         .mesmerizing-btn:hover::before { opacity: 1; }
+        
 
         /* MODIFIED: Dynamic Quote Styles V5 (NO BOX) */
         #dynamic-quote-container {
@@ -129,8 +136,8 @@
             position: relative;
             overflow: hidden;
             border-radius: 1rem;
-             box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
-             border: 1px solid rgba(138, 43, 226, 0.2);
+             /* box-shadow: 0 0 20px rgba(138, 43, 226, 0.3); REMOVED */
+             /* border: 1px solid rgba(138, 43, 226, 0.2); REMOVED */
         }
         .quote-wrapper {
              position: absolute;
@@ -155,22 +162,110 @@
         }
         .quote-text {
             font-size: 1.25rem; /* Larger text */
-            color: #f5f5f5;
+            color: #000000;
             font-style: italic;
             line-height: 1.5;
             letter-spacing: 0.02em;
             /* Text shadow (glow) set by JS */
         }
+        #ourLogo {
+            color:#3d2626;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100%;
+          }
+          
+          #ourLogo img {
+            height: 60px; 
+            width: auto;
+            object-fit: contain;
+            margin-left: 0.5rem; 
+            border-radius: 0.5rem; 
+          }
 
+          /* START: Testimonials Section Styles */
+        @keyframes scroll-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .testimonial-scroller {
+            max-width: 100%;
+            overflow: hidden;
+            position: relative;
+            /* Add a fade-out effect on the sides for a clean look */
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+        .testimonial-track {
+            display: flex;
+            gap: 1.5rem; /* Space between cards */
+            width: max-content; /* Let it be as wide as its content */
+            animation: scroll-left 40s linear infinite;
+        }
+        .testimonial-track:hover {
+            animation-play-state: paused; /* Pauses on hover */
+        }
+        .testimonial-card {
+            width: 350px; /* Fixed width for each card */
+            flex-shrink: 0;
+            text-align: left;
+        }
+        /* END: Testimonials Section Styles */
+
+        /* START: Footer Styles */
+        .site-footer {
+            background-color: #3d2626; /* Matching your nav bar */
+            color: #c0c0c0; /* Light gray for text */
+            padding: 4rem 2rem 2rem 2rem;
+            flex-shrink: 0; /* Prevents footer from shrinking */
+            /* margin-top: auto; -> This is handled by main {flex-grow: 1} */
+        }
+        .footer-title {
+            font-size: 1.125rem; /* 18px */
+            font-weight: 600;
+            color: white;
+            margin-bottom: 1.25rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+        .footer-link {
+            color: #c0c0c0;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+        .footer-link:hover {
+            color: var(--glow-color); /* Use your glow variable */
+        }
+        .footer-logo {
+            height: 60px; /* Same as your nav logo */
+            width: auto;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 3rem;
+            padding-top: 2rem;
+            font-size: 0.875rem; /* 14px */
+        }
+        /* END: Footer Styles */
+          
     </style>
 </head>
+
 <body class="site-container">
     <canvas id="three-canvas"></canvas>
 
     <nav class="sticky top-0 z-50">
         <div class="px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
-                <div class="flex-shrink-0 text-3xl font-bold header-title tracking-normal cursor-pointer" onclick="navigateTo('home')">RangVigyaan</div>
+                <div id="ourLogo"><img src="./ourLogo.jpeg" alt="RangVigyaan"></div>
                 <div class="flex items-center space-x-4">
                     <button class="nav-icon"  id="search-btn" title="Search"><i data-lucide="search"></i></button>
                     <button class="nav-icon" id="account-btn" title="Account"><i data-lucide="user"></i></button>
@@ -180,14 +275,12 @@
     </nav>
 
     <main class="relative">
-        <!-- Home Section -->
         <section id="home" class="content-section">
             <div class="max-w-7xl mx-auto py-16 px-4 text-center flex flex-col items-center justify-center">
                 <h1 class="text-5xl md:text-7xl font-bold header-title">RANGVIGYAAN</h1>
-                <p class="text-lg md:text-xl mt-4 text-gray-300 tracking-wider">The AI Art Weaver</p>
-                <p class="max-w-3xl mx-auto mt-8 text-gray-400">Welcome to a digital sanctuary where ancient tradition meets artificial intelligence. Generate, learn, create, and own a piece of this beautiful fusion of art and technology.</p>
+                <p class="text-lg md:text-xl mt-4 text-gray-900 tracking-wider">The AI Art Weaver</p>
+                <p class="max-w-3xl mx-auto mt-8 text-gray-800">Welcome to a digital sanctuary where ancient tradition meets artificial intelligence. Generate, learn, create, and own a piece of this beautiful fusion of art and technology.</p>
 
-                <!-- START: Image Carousel -->
                 <div id="home-carousel-container" class="w-full max-w-5xl mx-auto mt-12 relative overflow-hidden rounded-2xl glass-card glowing-border">
                     <div id="carousel-slides" class="flex transition-transform duration-500 ease-in-out">
                         <script>
@@ -211,37 +304,99 @@
                     </button>
                     <div id="carousel-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10"></div>
                 </div>
-                <!-- END: Image Carousel -->
-
-                <!-- START: Category Section -->
                 <div class="w-full max-w-5xl mx-auto mt-16 px-4">
                     <div class="category-grid">
-                        <div class="glass-card glowing-border category-card cursor-pointer" onclick="navigateTo('ai-kolam')"><div class="card-content-wrapper p-6 flex flex-col items-center text-center"><i data-lucide="palette" class="w-10 h-10 mb-3 text-pink-400 category-icon"></i><h3 class="text-lg font-semibold text-white">AI Kolam</h3><p class="text-sm text-gray-400 mt-1">Generate unique patterns</p></div></div>
-                        <div class="glass-card glowing-border category-card cursor-pointer" onclick="navigateTo('shop')"><div class="card-content-wrapper p-6 flex flex-col items-center text-center"><i data-lucide="shopping-bag" class="w-10 h-10 mb-3 text-orange-400 category-icon"></i><h3 class="text-lg font-semibold text-white">Shop</h3><p class="text-sm text-gray-400 mt-1">Own AI-generated art</p></div></div>
-                        <div class="glass-card glowing-border category-card cursor-pointer" onclick="navigateTo('learn')"><div class="card-content-wrapper p-6 flex flex-col items-center text-center"><i data-lucide="book-open" class="w-10 h-10 mb-3 text-purple-400 category-icon"></i><h3 class="text-lg font-semibold text-white">Learn</h3><p class="text-sm text-gray-400 mt-1">Discover the history</p></div></div>
-                        <div class="glass-card glowing-border category-card cursor-pointer" onclick="navigateTo('gallery-3d')"><div class="card-content-wrapper p-6 flex flex-col items-center text-center"><i data-lucide="image" class="w-10 h-10 mb-3 text-blue-400 category-icon"></i><h3 class="text-lg font-semibold text-white">Art Hub</h3><p class="text-sm text-gray-400 mt-1">Explore 3D & Mandalas</p></div></div>
+                        <div class="glass-card glowing-border category-card cursor-pointer" onclick="navigateTo('ai-kolam')"><div class="card-content-wrapper p-6 flex flex-col items-center text-center"><i data-lucide="palette" class="w-10 h-10 mb-3 text-pink-400 category-icon"></i><h3 class="text-lg font-semibold text-white">AI Kolam</h3><p class="text-sm text-white mt-1">Generate unique patterns</p></div></div>
+                        <div class="glass-card glowing-border category-card cursor-pointer" onclick="navigateTo('shop')"><div class="card-content-wrapper p-6 flex flex-col items-center text-center"><i data-lucide="shopping-bag" class="w-10 h-10 mb-3 text-orange-400 category-icon"></i><h3 class="text-lg font-semibold text-white">Shop</h3><p class="text-sm text-white mt-1">Own AI-generated art</p></div></div>
+                        <div class="glass-card glowing-border category-card cursor-pointer" onclick="navigateTo('learn')"><div class="card-content-wrapper p-6 flex flex-col items-center text-center"><i data-lucide="book-open" class="w-10 h-10 mb-3 text-purple-400 category-icon"></i><h3 class="text-lg font-semibold text-white">Learn</h3><p class="text-sm text-white mt-1">Discover the history</p></div></div>
+                        <div class="glass-card glowing-border category-card cursor-pointer" onclick="navigateTo('gallery-3d')"><div class="card-content-wrapper p-6 flex flex-col items-center text-center"><i data-lucide="image" class="w-10 h-10 mb-3 text-blue-400 category-icon"></i><h3 class="text-lg font-semibold text-white">Art Hub</h3><p class="text-sm text-white mt-1">Explore 3D & Mandalas</p></div></div>
                     </div>
                 </div>
-                <!-- END: Category Section -->
-
-                <!-- START: Explore Gallery Button Section -->
                 <div class="w-full max-w-5xl mx-auto mt-20 px-4 text-center">
-                    <p class="text-lg text-gray-300 mb-6 tracking-wide">Experience the Fusion</p>
+                    <p class="text-lg text-gray-900 mb-6 tracking-wide">Experience the Fusion</p>
                     <button class="mesmerizing-btn" onclick="navigateTo('gallery-3d')">Explore the Gallery</button>
                 </div>
-                <!-- END: Explore Gallery Button Section -->
-
-                <!-- START: Dynamic Quote Section -->
                 <div id="dynamic-quote-container" class="w-full max-w-5xl mx-auto mt-16 px-4">
-                    <!-- Quotes will be injected here dynamically -->
+                    </div>
                 </div>
-                <!-- END: Dynamic Quote Section -->
-
-            </div>
         </section>
 
-        <!-- Other sections remain unchanged, ensure their content exists -->
-         <section id="ai-kolam" class="content-section">
+        <div class="w-full max-w-7xl mx-auto mt-20 px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold page-title mb-12">Words from Our Community</h2>
+            <div class="testimonial-scroller">
+                <div id="testimonial-track" class="testimonial-track">
+                    <div class="testimonial-card glass-card">
+                        <div class="card-content-wrapper p-6">
+                            <div class="flex mb-3">
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                            </div>
+                            <p class="text-gray-300 italic mb-4">"The AI Kolam generator is pure magic. I'm mesmerized by the patterns it creates!"</p>
+                            <h4 class="font-semibold text-white mt-3">- Priya S.</h4>
+                        </div>
+                    </div>
+                    <div class="testimonial-card glass-card">
+                        <div class="card-content-wrapper p-6">
+                            <div class="flex mb-3">
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                            </div>
+                            <p class="text-gray-300 italic mb-4">"I bought a dress from the shop, and the print quality is amazing. So unique!"</p>
+                            <h4 class="font-semibold text-white mt-3">- Rohan K.</h4>
+                        </div>
+                    </div>
+                    <div class="testimonial-card glass-card">
+                        <div class="card-content-wrapper p-6">
+                            <div class="flex mb-3">
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-gray-500"></i>
+                            </div>
+                            <p class="text-gray-300 italic mb-4">"The 'Learn' section taught me so much about the history of Kolam. Beautifully explained."</p>
+                            <h4 class="font-semibold text-white mt-3">- Ananya M.</h4>
+                        </div>
+                    </div>
+                    <div class="testimonial-card glass-card">
+                        <div class="card-content-wrapper p-6">
+                            <div class="flex mb-3">
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                            </div>
+                            <p class="text-gray-300 italic mb-4">"The 3D gallery is breathtaking. It's like walking through a digital art museum."</p>
+                            <h4 class="font-semibold text-white mt-3">- David L.</h4>
+                        </div>
+                    </div>
+                    <div class="testimonial-card glass-card">
+                        <div class="card-content-wrapper p-6">
+                            <div class="flex mb-3">
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                                <i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>
+                            </div>
+                            <p class="text-gray-300 italic mb-4">"My kids love the DIY kit. It's a wonderful, screen-free activity."</p>
+                            <h4 class="font-semibold text-white mt-3">- Fatima Z.</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <section id="ai-kolam" class="content-section">
              <div class="flex-grow flex flex-col">
                 <main class="gemini-main">
                     <div id="gemini-chat-area" class="gemini-chat-area">
@@ -381,6 +536,60 @@
 
     </main>
 
+    <footer class="site-footer">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+                
+                <div>
+                    <img src="./ourLogo.jpeg" alt="RangVigyaan Logo" class="footer-logo">
+                    <p class="text-sm">
+                        A digital sanctuary where ancient art meets artificial intelligence. We explore, create, and share the beauty of Kolam, Mandalas, and generative art.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="footer-title">Categories</h3>
+                    <ul class="footer-links">
+                        <li><a onclick="navigateTo('ai-kolam');" class="footer-link">AI Kolam</a></li>
+                        <li><a onclick="navigateTo('shop');" class="footer-link">Shop Art</a></li>
+                        <li><a onclick="navigateTo('learn');" class="footer-link">Learn History</a></li>
+                        <li><a onclick="navigateTo('gallery-3d');" class="footer-link">3D Art Hub</a></li>
+                        <li><a onclick="navigateTo('gallery-mandala');" class="footer-link">Mandala Gallery</a></li>
+                        <li><a onclick="navigateTo('diy-kits');" class="footer-link">DIY Kits</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="footer-title">Our Mission</h3>
+                    <p class="text-sm">
+                        To celebrate and preserve cultural heritage by breathing new life into traditional art forms through modern technology. We aim to inspire creativity and connect a global community through the universal language of design.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="footer-title">Information</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link">FAQ</a></li>
+                        <li><a href="#" class="footer-link">Privacy Policy</a></li>
+                        <li><a href="#" class="footer-link">Terms & Conditions</a></li>
+                        <li><a href="#" class="footer-link">Shipping & Returns</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="footer-bottom flex flex-col md:flex-row justify-between items-center text-gray-400">
+                <div class="flex space-x-4 mb-4 md:mb-0">
+                    <a href="#" class="footer-link">About Us</a>
+                    <span class="border-r border-gray-600"></span>
+                    <a href="#" class="footer-link">Contact Us</a>
+                </div>
+                <p class="text-center md:text-right">&copy; 2025 RangVigyaan. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+
     <script>
     document.addEventListener('DOMContentLoaded', () => {
 
@@ -453,12 +662,12 @@
             iconElement.classList.add('quote-icon');
             iconElement.setAttribute('data-lucide', selectedIcon);
             iconElement.style.color = selectedColor;
-            iconElement.style.filter = `drop-shadow(0 0 18px ${selectedColor}) drop-shadow(0 0 5px ${selectedColor}aa)`;
+            // iconElement.style.filter = `drop-shadow(0 0 18px ${selectedColor}) drop-shadow(0 0 5px ${selectedColor}aa)`; /* REMOVED */
 
             const textElement = document.createElement('p');
             textElement.className = 'quote-text';
             textElement.textContent = `"${selectedQuote}"`;
-            textElement.style.textShadow = `0 0 15px ${selectedColor}, 0 0 8px ${selectedColor}cc`;
+            // textElement.style.textShadow = `0 0 15px ${selectedColor}, 0 0 8px ${selectedColor}cc`; /* REMOVED */
 
             // Append directly to wrapper
             wrapper.appendChild(iconElement);
@@ -523,6 +732,17 @@
             spawnQuote();
         }
 
+        // --- TESTIMONIAL SCROLLER SCRIPT ---
+        const track = document.getElementById("testimonial-track");
+        if (track) {
+            const cards = Array.from(track.children);
+            // Clone and append for a seamless loop
+            cards.forEach(card => {
+                const clone = card.cloneNode(true);
+                track.appendChild(clone);
+            });
+        }
+
 
         // --- BACKGROUND & NAVIGATION ---
         const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000),renderer=new THREE.WebGLRenderer({canvas:document.getElementById('three-canvas'),alpha:true});renderer.setSize(window.innerWidth,window.innerHeight);const pC=5000,pos=new Float32Array(pC*3),cls=new Float32Array(pC*3),bC=[new THREE.Color('#ff8a00'),new THREE.Color('#e52e71'),new THREE.Color('#8a2be2')];for(let i=0;i<pC;i++){pos[i*3]=(Math.random()-0.5)*15;pos[i*3+1]=(Math.random()-0.5)*15;pos[i*3+2]=(Math.random()-0.5)*15;const c=bC[i%bC.length];cls[i*3]=c.r;cls[i*3+1]=c.g;cls[i*3+2]=c.b;}const parts=new THREE.BufferGeometry();parts.setAttribute('position',new THREE.BufferAttribute(pos,3));parts.setAttribute('color',new THREE.BufferAttribute(cls,3));const pSys=new THREE.Points(parts,new THREE.PointsMaterial({size:0.02,vertexColors:true,transparent:true,opacity:0.8,blending:THREE.AdditiveBlending}));scene.add(pSys);camera.position.z=5;const clock=new THREE.Clock(),mouse=new THREE.Vector2();window.addEventListener('mousemove',e=>{mouse.x=(e.clientX/window.innerWidth)*2-1;mouse.y=-(e.clientY/window.innerHeight)*2+1;});function animateThree(){requestAnimationFrame(animateThree);const eT=clock.getElapsedTime();pSys.rotation.y=eT*0.05;camera.position.x+=(mouse.x*0.8-camera.position.x)*0.04;camera.position.y+=(mouse.y*0.8-camera.position.y)*0.04;camera.lookAt(scene.position);renderer.render(scene,camera);}animateThree();
@@ -567,7 +787,10 @@
         // Initial setup
         document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));
         document.getElementById('home').classList.add('active');
-        document.querySelector('.header-title.cursor-pointer').addEventListener('click', () => navigateTo('home'));
+        // document.querySelector('.header-title.cursor-pointer').addEventListener('click', () => navigateTo('home')); // This line was causing an error as the element no longer exists
+        // Corrected selector for the logo:
+        document.getElementById('ourLogo').style.cursor = 'pointer';
+        document.getElementById('ourLogo').addEventListener('click', () => navigateTo('home'));
         lucide.createIcons();
     });
 
@@ -576,4 +799,3 @@
     </script>
 </body>
 </html>
-
