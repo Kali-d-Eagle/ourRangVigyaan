@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - RangVigyaan</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Jost:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="site-container">
+    <canvas id="three-canvas"></canvas>
+
+    <nav class="sticky top-0 z-50">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20 relative">
+                
+                <a id="ourLogo" href="index.html" class="cursor-pointer">
+                    <img src="./ourLogo.jpeg" alt="RangVigyaan">
+                </a>
+
+                <div class="flex items-center space-x-4">
+                    <button class="nav-icon relative" id="wishlist-btn" title="Wishlist">
+                        <i data-lucide="heart"></i>
+                        <span id="wishlist-counter" class="nav-counter hidden">0</span>
+                    </button>
+                    <button class="nav-icon relative" id="cart-btn" title="Cart">
+                        <i data-lucide="shopping-cart"></i>
+                        <span id="cart-counter" class="nav-counter hidden">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="relative">
+        <section id="shop" class="content-section active">
+            <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+                <aside class="md:col-span-1 md:sticky top-28 md:max-h-[calc(100vh-8rem)] overflow-y-auto">
+                    <div class="glass-card p-6">
+                        <div class="card-content-wrapper">
+                            <h3 class="text-2xl font-bold page-title mb-6">Categories</h3>
+                            <div id="filter-container" class="flex flex-col gap-3">
+                                <button class="filter-btn active" data-category="all">All</button>
+                                <button class="filter-btn" data-category="dress">Dresses</button>
+                                <button class="filter-btn" data-category="bag">Bags</button>
+                                <button class="filter-btn" data-category="pillow">Pillow Covers</button>
+                                <button class="filter-btn" data-category="wall">Wall Hangings</button>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+                <div class="md:col-span-3">
+                    <div class="section-header !text-left !mb-8">
+                        <h2 class="header-title !text-5xl">Art You Can Own</h2>
+                        <p class="!max-w-none !mx-0 !text-gray-300">Bring the magic of RangVigyaan into your life. Explore our curated collection, all featuring unique AI-generated designs.</p>
+                    </div>
+                    <div id="product-grid" class="shop-grid"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="cart-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <div class="card-content-wrapper p-6">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title">Your Cart</h2><button id="cart-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <div id="cart-modal-items" class="flex flex-col gap-4 mb-6"></div>
+                <div class="border-t border-white/10 pt-6"><div class="flex justify-between items-center mb-6"><span class="text-xl text-gray-300">Total:</span><span id="cart-modal-total" class="text-3xl font-bold text-white">₹0</span></div><button id="checkout-btn" class="mesmerizing-btn w-full !text-lg">Proceed to Checkout</button></div>
+            </div>
+        </div>
+    </div>
+    <div id="wishlist-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <div class="card-content-wrapper p-6">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title">Your Wishlist</h2><button id="wishlist-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <div id="wishlist-modal-items" class="flex flex-col gap-4 mb-6"></div>
+            </div>
+        </div>
+    </div>
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal-content glass-card !max-w-lg">
+            <div class="card-content-wrapper p-8">
+                <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold page-title">Payment Gateway</h2><button id="payment-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <p class="text-gray-300 mb-4">This is where the multi-payment gateway would be integrated!</p>
+                <p class="text-gray-400 text-sm mb-6">In a real e-commerce site, this button would redirect you to a secure payment processor like Razorpay, Stripe, or PayPal. Since this is a front-end project, we can't process real payments.</p>
+                <button id="payment-modal-ok" class="btn w-full">Got it!</button>
+            </div>
+        </div>
+    </div>
+    <footer class="site-footer">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div>
+                    <a href="index.html" class="inline-block mb-4">
+                        <img src="./ourLogo.jpeg" alt="RangVigyaan Logo" class="footer-logo">
+                    </a>
+                    <p class="text-sm text-gray-400 mb-6">
+                        Weaving the threads of ancient tradition with the logic of artificial intelligence to create something new.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="footer-social-link"><i data-lucide="instagram"></i></a>
+                        <a href="#" class="footer-social-link"><i data-lucide="facebook"></i></a>
+                        <a href="#" class="footer-social-link"><i data-lucide="twitter"></i></a>
+                        <a href="#" class="footer-social-link"><i data-lucide="youtube"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="footer-title">Explore</h3>
+                    <ul class="footer-links">
+                        <li><a href="ai-kolam.html" class="footer-link">AI Kolam Generator</a></li>
+                        <li><a href="shop.html" class="footer-link">Shop AI Art</a></li>
+                        <li><a href="art-hub.html" class="footer-link">3D Art Hub</a></li>
+                        <li><a href="art-hub.html#gallery-mandala" class="footer-link">Mandala Gallery</a></li>
+                        <li><a href="learn.html#diy-kits" class="footer-link">DIY Kits</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="footer-title">About Us</h3>
+                    <ul class="footer-links">
+                        <li><a href="learn.html#about-us" class="footer-link">Our Story</a></li>
+                        <li><a href="learn.html" class="footer-link">The Technology</a></li>
+                        <li><a href="learn.html#faq" class="footer-link">FAQ</a></li>
+                        <li><a href="learn.html#contact-us" class="footer-link">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="footer-title">Join Our Community</h3>
+                    <p class="text-sm text-gray-400 mb-4">Get exclusive updates, new art drops, and a peek behind the code.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="your.email@example.com" class="w-full px-4 py-2 bg-gray-800/50 text-white border border-white/20 rounded-l-md focus:outline-none focus:border-accent-color">
+                        <button type="submit" class="p-3 bg-accent-color text-white rounded-r-md"><i data-lucide="arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom flex flex-col md:flex-row justify-between items-center text-gray-500">
+                <p class="text-sm">&copy; 2025 RangVigyaan. All Rights Reserved.</p>
+                <div class="flex space-x-4 text-sm">
+                    <a href="learn.html#terms" class="footer-link !text-gray-500 hover:!text-white">Terms & Conditions</a>
+                    <a href="learn.html#privacy" class="footer-link !text-gray-500 hover:!text-white">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="app.js"></script>
+</body>
+</html>

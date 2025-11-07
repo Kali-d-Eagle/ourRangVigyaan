@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Hub - RangVigyaan</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Jost:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="site-container">
+    <canvas id="three-canvas"></canvas>
+
+    <nav class="sticky top-0 z-50">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20 relative">
+                <a id="ourLogo" href="index.html" class="cursor-pointer">
+                    <img src="./ourLogo.jpeg" alt="RangVigyaan">
+                </a>
+                <div class="flex items-center space-x-4">
+                    <button class="nav-icon" id="search-btn" title="Search"><i data-lucide="search"></i></button>
+                    <!-- <button class="nav-icon relative" id="wishlist-btn" title="Wishlist">
+                        <i data-lucide="heart"></i>
+                        <span id="wishlist-counter" class="nav-counter hidden">0</span>
+                    </button>
+                    <button class="nav-icon relative" id="cart-btn" title="Cart">
+                        <i data-lucide="shopping-cart"></i>
+                        <span id="cart-counter" class="nav-counter hidden">0</span>
+                    </button> -->
+                    <button class="nav-icon" id="account-btn" title="Account"><i data-lucide="user"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="relative">
+        <section id="gallery-3d" class="content-section active">
+            <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+                <div class="section-header">
+                    <h2 class="header-title">Dimensions of Design</h2>
+                    <p>Explore the mesmerizing depth and form of Kolam and Rangoli in three dimensions. A fusion of tradition and futuristic 3D artistry, rendered to perfection.</p>
+                </div>
+                <!-- <div class="card-grid">
+                    <div class="card-item glass-card glowing-border"><div class="card-content-wrapper" ><img src="31.jpeg" alt="3D Render of a spiral Kolam" onerror="this.src='https://placehold.co/600x400/6f2e21/white?text=31.jpeg'"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">Crystalline Spiral</h3></div></div></div>
+                    <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="32.jpeg" alt="3D Render of a floral Rangoli" onerror="this.src='https://placehold.co/600x400/6f2e21/white?text=32.jpeg'"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">Neon Bloom</h3></div></div></div>
+                    <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="33.jpeg" alt="3D Render of a metallic pattern" onerror="this.src='https://placehold.co/600x400/6f2e21/white?text=33.jpeg'"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">Metalic Weave</h3></div></div></div>
+                    <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="34.jpeg" alt="3D Render of a metallic pattern" onerror="this.src='https://placehold.co/600x400/6f2e21/white?text=34.jpeg'"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">Chromatic Lotus</h3></div></div></div>
+                </div> -->
+                <div class="card-grid">
+                    <a href="https://www.google.com" target="_blank" class="card-item glass-card glowing-border">
+                      <div class="card-content-wrapper">
+                        <img src="31.jpeg" alt="3D Render of a spiral Kolam" onerror="this.src='https://placehold.co/600x400/6f2e21/white?text=31.jpeg'">
+                        <div class="p-4">
+                          <h3 class="text-lg font-bold text-center page-title">Crystalline Spiral</h3>
+                        </div>
+                      </div>
+                    </a>
+                  
+                    <a href="https://www.google.com" target="_blank" class="card-item glass-card glowing-border">
+                      <div class="card-content-wrapper">
+                        <img src="32.jpeg" alt="3D Render of a floral Rangoli" onerror="this.src='https://placehold.co/600x400/6f2e21/white?text=32.jpeg'">
+                        <div class="p-4">
+                          <h3 class="text-lg font-bold text-center page-title">Neon Bloom</h3>
+                        </div>
+                      </div>
+                    </a>
+
+                    <a href="https://www.google.com" target="_blank" class="card-item glass-card glowing-border">
+                      <div class="card-content-wrapper">
+                        <img src="33.jpeg" alt="3D Render of a metallic pattern" onerror="this.src='https://placehold.co/600x400/6f2e21/white?text=33.jpeg'">
+                        <div class="p-4">
+                          <h3 class="text-lg font-bold text-center page-title">Metalic Weave</h3>
+                        </div>
+                      </div>
+                    </a>
+                  
+                    <a href="https://www.google.com" target="_blank" class="card-item glass-card glowing-border">
+                      <div class="card-content-wrapper">
+                        <img src="34.jpeg" alt="3D Render of a metallic pattern" onerror="this.src='https://placehold.co/600x400/6f2e21/white?text=34.jpeg'">
+                        <div class="p-4">
+                          <h3 class="text-lg font-bold text-center page-title">Chromatic Lotus</h3>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                  
+            </div>
+        </section>
+
+        <section id="gallery-mandala" class="content-section active">
+            <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+                <div class="section-header">
+                    <h2 class="header-title">Universe in a Circle</h2>
+                    <p>Lose yourself in the infinite complexity of Mandalas. Each design is a journey to the center of the self, generated by AI to inspire meditation and awe.</p>
+                </div>
+                <div id="mandalaGrid"class="card-grid">
+                    <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="m1.jpeg" alt="Intricate black and white Mandala" onerror="this.src='https://placehold.co/600x400/6f2e21/white?text=m1.jpeg'"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">₹199 Peacock's Grace</h3></div></div></div>
+                    <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="m2.jpeg" alt="Colorful vibrant Mandala" onerror="this.src='https://placehold.co/600x400/6f2e21/white?text=m2.jpeg'"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">₹199 Galactic Center</h3></div></div></div>
+                    <div class="card-item glass-card glowing-border"><div class="card-content-wrapper"><img src="m3.jpeg" alt="Detailed dot-art Mandala" onerror="this.src='https://placehold.co/600x400/6f2e21/white?text=m3.jpeg'"><div class="p-4"><h3 class="text-lg font-bold text-center page-title">₹199 Stippled Sun</h3></div></div></div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div id="search-modal" class="modal-overlay">
+        <div class="modal-content glass-card !max-w-3xl">
+            <div class="card-content-wrapper p-6">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title">Search Products</h2><button id="search-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <div class="flex items-center gap-2 p-3 bg-white/10 rounded-lg border border-white/20 focus-within:border-white/50 transition-colors"><i data-lucide="search" class="text-white/50"></i><input type="text" id="search-input" placeholder="Search for dresses, bags, wall art..." class="w-full bg-transparent text-white placeholder:text-white/50 focus:outline-none"></div>
+                <div id="search-results-container" class="mt-6 max-h-[50vh] overflow-y-auto flex flex-col gap-4">
+                    <p class="text-gray-400 text-center" id="search-placeholder">Start typing to see results...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="account-modal" class="modal-overlay">
+        <div class="modal-content glass-card !max-w-lg">
+            <div class="card-content-wrapper p-8">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title" id="account-modal-title">Login</h2><button id="account-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <form id="login-form" class="flex flex-col gap-4">
+                    <div><label for="login-email" class="text-sm font-medium text-gray-300">Email</label><input type="email" id="login-email" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <div><label for="login-password" class="text-sm font-medium text-gray-300">Password</label><input type="password" id="login-password" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <button type="submit" class="btn mt-4 !py-3 !text-base">Login</button>
+                    <p class="text-center text-gray-400 text-sm">No account? <button type="button" id="show-signup-btn" class="font-semibold text-accent-color hover:underline">Sign up</button></p>
+                </form>
+                <form id="signup-form" class="hidden flex-col gap-4">
+                    <div><label for="signup-name" class="text-sm font-medium text-gray-300">Name</label><input type="text" id="signup-name" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <div><label for="signup-email" class="text-sm font-medium text-gray-300">Email</label><input type="email" id="signup-email" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <div><label for="signup-password" class="text-sm font-medium text-gray-300">Password</label><input type="password" id="signup-password" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <button type="submit" class="btn mt-4 !py-3 !text-base">Create Account</button>
+                    <p class="text-center text-gray-400 text-sm">Already have an account? <button type="button" id="show-login-btn" class="font-semibold text-accent-color hover:underline">Login</button></p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="cart-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <div class="card-content-wrapper p-6">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title">Your Cart</h2><button id="cart-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <div id="cart-modal-items" class="flex flex-col gap-4 mb-6"></div>
+                <div class="border-t border-white/10 pt-6"><div class="flex justify-between items-center mb-6"><span class="text-xl text-gray-300">Total:</span><span id="cart-modal-total" class="text-3xl font-bold text-white">₹0</span></div><button id="checkout-btn" class="mesmerizing-btn w-full !text-lg">Proceed to Checkout</button></div>
+            </div>
+        </div>
+    </div>
+    <div id="wishlist-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <div class="card-content-wrapper p-6">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title">Your Wishlist</h2><button id="wishlist-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <div id="wishlist-modal-items" class="flex flex-col gap-4 mb-6"></div>
+            </div>
+        </div>
+    </div>
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal-content glass-card !max-w-lg">
+            <div class="card-content-wrapper p-8">
+                <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold page-title">Payment Gateway</h2><button id="payment-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <p class="text-gray-300 mb-4">This is where the multi-payment gateway would be integrated!</p>
+                <p class="text-gray-400 text-sm mb-6">In a real e-commerce site, this button would redirect you to a secure payment processor like Razorpay, Stripe, or PayPal. Since this is a front-end project, we can't process real payments.</p>
+                <button id="payment-modal-ok" class="btn w-full">Got it!</button>
+            </div>
+        </div>
+    </div>
+    <footer class="site-footer">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div>
+                    <a href="index.html" class="inline-block mb-4">
+                        <img src="./ourLogo.jpeg" alt="RangVigyaan Logo" class="footer-logo">
+                    </a>
+                    <p class="text-sm text-gray-400 mb-6">
+                        Weaving the threads of ancient tradition with the logic of artificial intelligence to create something new.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="footer-social-link"><i data-lucide="instagram"></i></a>
+                        <a href="#" class="footer-social-link"><i data-lucide="facebook"></i></a>
+                        <a href="#" class="footer-social-link"><i data-lucide="twitter"></i></a>
+                        <a href="#" class="footer-social-link"><i data-lucide="youtube"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="footer-title">Explore</h3>
+                    <ul class="footer-links">
+                        <li><a href="ai-kolam.html" class="footer-link">AI Kolam Generator</a></li>
+                        <li><a href="shop.html" class="footer-link">Shop AI Art</a></li>
+                        <li><a href="art-hub.html" class="footer-link">3D Art Hub</a></li>
+                        <li><a href="art-hub.html#gallery-mandala" class="footer-link">Mandala Gallery</a></li>
+                        <li><a href="learn.html#diy-kits" class="footer-link">DIY Kits</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="footer-title">About Us</h3>
+                    <ul class="footer-links">
+                        <li><a href="learn.html#about-us" class="footer-link">Our Story</a></li>
+                        <li><a href="learn.html" class="footer-link">The Technology</a></li>
+                        <li><a href="learn.html#faq" class="footer-link">FAQ</a></li>
+                        <li><a href="learn.html#contact-us" class="footer-link">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="footer-title">Join Our Community</h3>
+                    <p class="text-sm text-gray-400 mb-4">Get exclusive updates, new art drops, and a peek behind the code.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="your.email@example.com" class="w-full px-4 py-2 bg-gray-800/50 text-white border border-white/20 rounded-l-md focus:outline-none focus:border-accent-color">
+                        <button type="submit" class="p-3 bg-accent-color text-white rounded-r-md"><i data-lucide="arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom flex flex-col md:flex-row justify-between items-center text-gray-500">
+                <p class="text-sm">&copy; 2025 RangVigyaan. All Rights Reserved.</p>
+                <div class="flex space-x-4 text-sm">
+                    <a href="learn.html#terms" class="footer-link !text-gray-500 hover:!text-white">Terms & Conditions</a>
+                    <a href="learn.html#privacy" class="footer-link !text-gray-500 hover:!text-white">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="app.js"></script>
+</body>
+</html>

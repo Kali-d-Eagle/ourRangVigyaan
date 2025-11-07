@@ -1,0 +1,969 @@
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn - RangVigyaan</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Jost:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Ensure smooth scrolling when clicking anchor links */
+        html { scroll-behavior: smooth; }
+        /* Adjust scroll position for fixed header */
+        section { scroll-margin-top: 100px; }
+        .learn-card:hover { transform: translateY(-5px); }
+    </style>
+</head>
+
+<body class="site-container bg-zinc-950 text-gray-200">
+    <canvas id="three-canvas" class="fixed top-0 left-0 w-full h-full -z-10 opacity-50"></canvas>
+
+    <nav class="sticky top-0 z-50" style="background-color: #3d2621;">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20 relative">
+                <div id="ourLogo" class="cursor-pointer" onclick="window.location.href='index.html'">
+                    <img src="./ourLogo.jpeg" alt="RangVigyaan" style="height: 60px; width: auto; border-radius: 0;">
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
+                    <a href="index.html" class="nav-link text-gray-300 hover:text-[#ff8a00] transition-colors">Home</a>
+                    <a href="ai-kolam.html" class="nav-link text-gray-300 hover:text-[#ff8a00] transition-colors">AI Kolam</a>
+                    <a href="shop.html" class="nav-link text-gray-300 hover:text-[#ff8a00] transition-colors">Shop</a>
+                    <a href="learn.html" class="nav-link text-[#ff8a00] font-semibold">Learn</a>
+                    <a href="gallery-3d.html" class="nav-link text-gray-300 hover:text-[#ff8a00] transition-colors">Art Hub</a>
+                </div>
+
+                <div class="flex items-center space-x-6">
+                    <button id="search-btn" class="text-gray-300 hover:text-[#ff8a00] transition-colors"><i data-lucide="search"></i></button>
+                    <button id="account-btn" class="text-gray-300 hover:text-[#ff8a00] transition-colors"><i data-lucide="user"></i></button>
+                    <button id="mobile-menu-btn" class="md:hidden text-gray-300 hover:text-[#ff8a00] transition-colors"><i data-lucide="menu"></i></button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-[#3d2621] border-t border-white/10 p-4 flex flex-col space-y-4">
+            <a href="index.html" class="text-gray-300">Home</a>
+            <a href="ai-kolam.html" class="text-gray-300">AI Kolam</a>
+            <a href="shop.html" class="text-gray-300">Shop</a>
+            <a href="learn.html" class="text-[#ff8a00] font-semibold">Learn</a>
+            <a href="gallery-3d.html" class="text-gray-300">Art Hub</a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="pt-20 pb-12 px-4 text-center">
+            <h1 class="header-title text-5xl md:text-7xl font-bold mb-6" style="font-family: 'Cinzel', serif;">The Knowledge Hub</h1>
+            <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+                Rangoli and Kolam are more than just beautiful patterns. They are a convergence of ancient history, complex mathematics, ecological science, and meditative practice.
+            </p>
+        </section>
+
+        <section class="px-4 max-w-6xl mx-auto mb-32">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <a href="#history" class="learn-card glass-card p-8 rounded-2xl flex items-center gap-6 hover:bg-white/5 transition-all cursor-pointer border border-white/10">
+                    <div class="bg-orange-500/20 p-4 rounded-full">
+                        <i data-lucide="scroll-text" class="w-12 h-12 text-orange-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-white mb-2">Echoes of Antiquity</h3>
+                        <p class="text-gray-400">Explore the rich historical origins and cultural significance.</p>
+                    </div>
+                </a>
+                <a href="#math" class="learn-card glass-card p-8 rounded-2xl flex items-center gap-6 hover:bg-white/5 transition-all cursor-pointer border border-white/10">
+                    <div class="bg-blue-500/20 p-4 rounded-full">
+                        <i data-lucide="sigma-square" class="w-12 h-12 text-blue-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-white mb-2">Geometry of the Gods</h3>
+                        <p class="text-gray-400">Uncover the fractals, symmetry, and graph theory hidden within.</p>
+                    </div>
+                </a>
+                <a href="#science" class="learn-card glass-card p-8 rounded-2xl flex items-center gap-6 hover:bg-white/5 transition-all cursor-pointer border border-white/10">
+                    <div class="bg-green-500/20 p-4 rounded-full">
+                        <i data-lucide="flask-conical" class="w-12 h-12 text-green-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-white mb-2">Rhythms of Earth</h3>
+                        <p class="text-gray-400">Understanding the ecological role and physics of materials.</p>
+                    </div>
+                </a>
+                <a href="#mindfulness" class="learn-card glass-card p-8 rounded-2xl flex items-center gap-6 hover:bg-white/5 transition-all cursor-pointer border border-white/10">
+                    <div class="bg-purple-500/20 p-4 rounded-full">
+                        <i data-lucide="lotus" class="w-12 h-12 text-purple-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-white mb-2">The Meditative Mandala</h3>
+                        <p class="text-gray-400">Kolam as a daily practice for focus, therapy, and inner peace.</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <section id="history" class="max-w-7xl mx-auto px-6 py-24 border-t border-white/10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <i data-lucide="scroll-text" class="w-8 h-8 text-orange-500"></i>
+                        <h2 class="text-4xl font-bold text-orange-500" style="font-family: 'Cinzel', serif;">History & Culture</h2>
+                    </div>
+                    <h3 class="text-2xl text-white mb-6">A Ritual Older Than Written Word</h3>
+                    <div class="space-y-6 text-lg text-gray-300 leading-relaxed">
+                        <p>
+                            Originating in ancient Tamil Nadu, Kolam is not merely decor; it is a daily ritual of welcome. Traditionally drawn by women at dawn before the household wakes, these patterns are believed to invite Lakshmi, the goddess of prosperity, into the home while keeping negative energies at bay.
+                        </p>
+                        <p>
+                            Unlike permanent art, Kolam is ephemeral. It is drawn to be walked upon, washed away by rain, or eaten by ants, symbolizing the transient nature of life itself. This daily cycle of creation and destruction is a powerful cultural anchor that has survived centuries of change.
+                        </p>
+                    </div>
+                </div>
+                <div class="glass-card p-4 rounded-3xl">
+                    <img src="https://placehold.co/800x600/3d2621/ff8a00?text=Ancient+Kolam+Art" alt="Historical Kolam" class="w-full h-auto rounded-2xl shadow-2xl">
+                </div>
+            </div>
+        </section>
+
+        <section id="math" class="max-w-7xl mx-auto px-6 py-24 border-t border-white/10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                 <div class="order-2 lg:order-1 glass-card p-4 rounded-3xl">
+                    <img src="https://placehold.co/800x600/1e3a8a/60a5fa?text=Mathematical+Symmetry" alt="Geometric Patterns" class="w-full h-auto rounded-2xl shadow-2xl">
+                </div>
+                <div class="order-1 lg:order-2">
+                    <div class="flex items-center gap-3 mb-6">
+                        <i data-lucide="sigma-square" class="w-8 h-8 text-blue-500"></i>
+                        <h2 class="text-4xl font-bold text-blue-500" style="font-family: 'Cinzel', serif;">The Mathematics</h2>
+                    </div>
+                    <h3 class="text-2xl text-white mb-6">Algorithms in Rice Flour</h3>
+                    <div class="space-y-6 text-lg text-gray-300 leading-relaxed">
+                        <p>
+                            Long before modern graph theory, Kolam artists were intuitively solving complex mathematical problems. A 'Pulli' (dot) Kolam is essentially a grid-based coordinate system. The winding lines that loop around these dots without breaking are perfect examples of **Eulerian circuits**—continuous paths that visit every edge of a graph exactly once.
+                        </p>
+                        <p>
+                            Furthermore, many traditional designs exhibit **fractal geometry**, where smaller parts of the pattern identically replicate the whole. Computer scientists today study these ancient algorithms to understand picture languages and array grammars.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="science" class="max-w-7xl mx-auto px-6 py-24 border-t border-white/10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <i data-lucide="flask-conical" class="w-8 h-8 text-green-500"></i>
+                        <h2 class="text-4xl font-bold text-green-500" style="font-family: 'Cinzel', serif;">The Science</h2>
+                    </div>
+                    <h3 class="text-2xl text-white mb-6">Ecology & Vibration</h3>
+                    <div class="space-y-6 text-lg text-gray-300 leading-relaxed">
+                        <p>
+                            **Ecological Harmony:** Traditional Kolam is drawn with rice flour, not synthetic chalk. This acts as a food source for ants, birds, and small insects. It is a daily act of charity ('Bhuta Yajna') that integrates the human household with the surrounding ecosystem.
+                        </p>
+                        <p>
+                            **Cymatics:** Fascinating modern research suggests similarities between Kolam patterns and **Chladni figures**—patterns formed by sand on a metal plate when vibrated by sound frequencies. Some theorize these ancient geometric forms might be visual representations of auspicious sounds or mantras.
+                        </p>
+                    </div>
+                </div>
+                <div class="glass-card p-4 rounded-3xl">
+                    <img src="https://placehold.co/800x600/064e3b/34d399?text=Rice+Flour+Ecology" alt="Science of Kolam" class="w-full h-auto rounded-2xl shadow-2xl">
+                </div>
+            </div>
+        </section>
+
+        <section id="mindfulness" class="max-w-7xl mx-auto px-6 py-24 border-t border-white/10 mb-24">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                 <div class="order-2 lg:order-1 glass-card p-4 rounded-3xl">
+                    <img src="https://placehold.co/800x600/581c87/c084fc?text=Meditative+Art" alt="Mindfulness and Art" class="w-full h-auto rounded-2xl shadow-2xl">
+                </div>
+                <div class="order-1 lg:order-2">
+                    <div class="flex items-center gap-3 mb-6">
+                        <i data-lucide="lotus" class="w-8 h-8 text-purple-500"></i>
+                        <h2 class="text-4xl font-bold text-purple-500" style="font-family: 'Cinzel', serif;">Mindfulness & Therapy</h2>
+                    </div>
+                    <h3 class="text-2xl text-white mb-6">Flow State & Focus</h3>
+                    <div class="space-y-6 text-lg text-gray-300 leading-relaxed">
+                        <p>
+                            In an age of digital distraction, the analog act of drawing Kolam induces a powerful **flow state**. The requirement to connect dots in a specific, unbroken sequence demands total cognitive presence, acting as a form of active meditation that quiets the anxious mind.
+                        </p>
+                        <p>
+                            Art therapists now use Mandala-like patterns to help patients reduce stress, improve focus, and process emotions. The symmetry of the designs provides a subconscious sense of order and balance to a chaotic mind.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="site-footer" style="background-color: #3d2621; color: #c0c0c0; padding: 4rem 2rem 2rem 2rem;">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div>
+                    <img src="./ourLogo.jpeg" alt="RangVigyaan Logo" class="mb-4" style="height: 60px; width: auto; border-radius: 0;">
+                    <p class="text-sm">Where ancient tradition meets artificial intelligence.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white mb-4 uppercase tracking-wider">Explore</h3>
+                    <ul class="space-y-2">
+                        <li><a href="ai-kolam.html" class="hover:text-[#ff8a00] transition-colors">AI Kolam</a></li>
+                        <li><a href="shop.html" class="hover:text-[#ff8a00] transition-colors">Shop</a></li>
+                        <li><a href="learn.html" class="text-[#ff8a00]">Learn</a></li>
+                    </ul>
+                </div>
+                <div>
+                     <h3 class="font-bold text-white mb-4 uppercase tracking-wider">Connect</h3>
+                     <div class="flex space-x-4">
+                         <a href="#" class="hover:text-[#ff8a00]"><i data-lucide="instagram"></i></a>
+                         <a href="#" class="hover:text-[#ff8a00]"><i data-lucide="twitter"></i></a>
+                         <a href="#" class="hover:text-[#ff8a00]"><i data-lucide="facebook"></i></a>
+                     </div>
+                </div>
+                 <div>
+                    <h3 class="font-bold text-white mb-4 uppercase tracking-wider">Legal</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-[#ff8a00] transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-[#ff8a00] transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/10 mt-12 pt-8 text-sm text-center">
+                &copy; 2025 RangVigyaan. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize all icons
+        lucide.createIcons();
+
+        // Mobile Menu Toggle Logic
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if(mobileBtn && mobileMenu) {
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+    </script>
+</body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn - RangVigyaan</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Jost:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body class="site-container learn-page" style="background-color: #0a0a0a;">
+    
+    <!-- 3D Background Canvas -->
+    <canvas id="three-canvas" class="fixed top-0 left-0 w-full h-full -z-10 opacity-30"></canvas>
+
+    <nav class="sticky top-0 z-50">
+        <!-- This div is full-width, px adds padding -->
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20 relative">
+                
+                <!-- Logo -->
+                <a id="ourLogo" href="index.html" class="cursor-pointer">
+                    <img src="./ourLogo.jpeg" alt="RangVigyaan">
+                </a>
+
+                <!-- Desktop Nav Links (Centered) -->
+                <div class="hidden md:flex items-center space-x-6 absolute left-1/2 -translate-x-1/2">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="ai-kolam.html" class="nav-link">AI Kolam</a>
+                    <a href="shop.html" class="nav-link">Shop</a>
+                    <a href="learn.html" class="nav-link active">Learn</a> <!-- Active state -->
+                    <a href="gallery-3d.html" class="nav-link">Art Hub</a>
+                </div>
+
+                <!-- Icons (Right-aligned) -->
+                <div class="flex items-center space-x-4">
+                    <button class="nav-icon" id="search-btn" title="Search"><i data-lucide="search"></i></button>
+                    <!-- <button class="nav-icon relative" id="wishlist-btn" title="Wishlist">
+                        <i data-lucide="heart"></i>
+                        <span id="wishlist-counter" class="nav-counter hidden">0</span>
+                    </button>
+                    <button class="nav-icon relative" id="cart-btn" title="Cart">
+                        <i data-lucide="shopping-cart"></i>
+                        <span id="cart-counter" class="nav-counter hidden">0</span>
+                    </button> -->
+                    <button class="nav-icon" id="account-btn" title="Account"><i data-lucide="user"></i></button>
+                    <button id="mobile-menu-btn" class="nav-icon md:hidden ml-2">
+                        <i data-lucide="menu"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-[#6f2e21] border-t border-gray-700">
+            <div class="flex flex-col space-y-2 p-4">
+                <a href="index.html" class="nav-link text-left p-2">Home</a>
+                <a href="ai-kolam.html" class="nav-link text-left p-2">AI Kolam</a>
+                <a href="shop.html" class="nav-link text-left p-2">Shop</a>
+                <a href="learn.html" class="nav-link text-left p-2 active">Learn</a>
+                <a href="gallery-3d.html" class="nav-link text-left p-2">Art Hub</a>
+            </div>
+        </div>
+    </nav>
+    <!-- ================= END NAV BAR ================= -->
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="relative">
+        
+        <!-- HERO SECTION -->
+        <section class="pt-20 pb-12 px-4 text-center">
+            <h1 class="header-title text-5xl md:text-7xl font-bold mb-6" style="font-family: 'DM Serif Display', serif;">The Lore of Lines</h1>
+            <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+                Rangoli and Kolam are more than just beautiful patterns. They are a convergence of ancient history, complex mathematics, ecological science, and meditative practice.
+            </p>
+        </section>
+
+        <!-- NEW: TOPIC NAVIGATION GRID (4 Sections) -->
+        <section class="px-4 max-w-6xl mx-auto mb-24 md:mb-32">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 1. History Card -->
+                <a href="#history" class="learn-card glass-card p-6 md:p-8 flex items-center gap-5 md:gap-6">
+                    <div class="icon-container flex-shrink-0">
+                        <i data-lucide="scroll-text" class="w-10 h-10 md:w-12 md:h-12 text-orange-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-white mb-2">Echoes of Antiquity</h3>
+                        <p class="text-gray-400">Explore the rich historical origins and cultural significance.</p>
+                    </div>
+                </a>
+                <!-- 2. Math Card -->
+                <a href="#math" class="learn-card glass-card p-6 md:p-8 flex items-center gap-5 md:gap-6">
+                    <div class="icon-container flex-shrink-0">
+                        <i data-lucide="sigma-square" class="w-10 h-10 md:w-12 md:h-12 text-blue-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-white mb-2">Geometry of the Gods</h3>
+                        <p class="text-gray-400">Uncover the fractals and graph theory hidden within.</p>
+                    </div>
+                </a>
+                <!-- 3. Science Card -->
+                <a href="#science" class="learn-card glass-card p-6 md:p-8 flex items-center gap-5 md:gap-6">
+                    <div class="icon-container flex-shrink-0">
+                        <i data-lucide="flask-conical" class="w-10 h-10 md:w-12 md:h-12 text-green-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-white mb-2">Rhythms of Earth</h3>
+                        <p class="text-gray-400">The ecological role and physics of materials.</p>
+                    </div>
+                </a>
+                <!-- 4. Mindfulness Card (Unique Topic) -->
+                <a href="#mindfulness" class="learn-card glass-card p-6 md:p-8 flex items-center gap-5 md:gap-6">
+                    <div class="icon-container flex-shrink-0">
+                        <i data-lucide="lotus" class="w-10 h-10 md:w-12 md:h-12 text-purple-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-white mb-2">The Meditative Mandala</h3>
+                        <p class="text-gray-400">Kolam as a daily practice for focus and inner peace.</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- ================================================
+        NEW: SYMMETRY WEAVER GAME
+        ================================================= -->
+        <section id="game" class="max-w-7xl mx-auto px-6 py-24 border-t border-white/10">
+            <div class="section-header">
+                <h2 class="header-title text-4xl md:text-5xl font-bold" style="font-family: 'DM Serif Display', serif;">Symmetry Weaver</h2>
+                <p class="text-lg text-gray-400 max-w-3xl mx-auto">
+                    Experience the core principle of Rangoli. Choose a symmetry level and draw in one segment to see your pattern mirrored and rotated in real-time.
+                </p>
+            </div>
+            
+            <!-- Game Controls -->
+            <div id="symmetry-controls" class="symmetry-controls">
+                <button data-symmetry="2" class="active" style="cursor: pointer;">2-Line Symmetry</button>
+                <button data-symmetry="4" style="cursor: pointer;">4-Line Symmetry</button>
+                <button data-symmetry="8" style="cursor: pointer;">8-Line Symmetry</button>
+                <button data-symmetry="10" style="cursor: pointer;">10-Line Symmetry</button>
+                <button id="clear-canvas-btn" style="cursor: pointer;">Clear Canvas</button>
+            </div>
+
+            <!-- Game Canvas Container -->
+            <div class="symmetry-game-container glass-card mt-8">
+                <!-- Canvas for guide lines (below) -->
+                <canvas id="canvas-guides"></canvas>
+                <!-- Canvas for drawing (on top) -->
+                <canvas id="canvas-draw"></canvas>
+            </div>
+        </section>
+        <!-- ================= END GAME ================= -->
+
+
+        <!-- ================= DETAILED SECTIONS ================= -->
+
+        <!-- SECTION 1: HISTORY -->
+        <section id="history" class="max-w-7xl mx-auto px-6 py-24 border-t border-white/10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <i data-lucide="scroll-text" class="w-8 h-8 text-orange-400"></i>
+                        <h2 class="text-4xl font-bold text-orange-400" style="font-family: 'DM Serif Display', serif;">History & Culture</h2>
+                    </div>
+                    <h3 class="text-2xl text-white mb-6">A Ritual Older Than Written Word</h3>
+                    <div class="space-y-6 text-lg text-gray-300 leading-relaxed">
+                        <p>
+                            Originating in ancient Tamil Nadu and mentioned in texts dating back over 1,000 years, Kolam is not merely decor; it is a daily prayer in action. Traditionally drawn by women at dawn at the threshold of the home, these patterns are a sacred invitation to Lakshmi, the Goddess of prosperity, and a gesture of welcome to all visitors.
+                        </p>
+                        <p>
+                            There are two main forms: the **Pulli Kolam** (dot-based), where intricate, looping lines are drawn around a grid of dots, and the **Kambi Kolam** (line-based), which consists of free-flowing, radial, and floral patterns.
+                        </p>
+                        <p>
+                            Unlike permanent art, Kolam is ephemeral. It is drawn to be walked upon, blown by the wind, washed away by rain, or eaten by ants, symbolizing the transient, cyclical nature of life itself. This daily act of creation and destruction is a powerful cultural anchor that has survived centuries of change.
+                        </p>
+                    </div>
+                </div>
+                <div class="glass-card p-4 rounded-3xl">
+                    <img src="ancientKolam.jpeg" alt="Historical Kolam" class="w-full h-auto rounded-2xl shadow-2xl" onerror="this.src='https://placehold.co/800x600/3d2621/ff8a00?text=Ancient+Art'">
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: MATH -->
+        <section id="math" class="max-w-7xl mx-auto px-6 py-24 border-t border-white/10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                 <div class="order-2 lg:order-1 glass-card p-4 rounded-3xl">
+                    <img src="https://placehold.co/800x600/1e3a8a/60a5fa?text=Graph+Theory" alt="Geometric Patterns" class="w-full h-auto rounded-2xl shadow-2xl">
+                </div>
+                <div class="order-1 lg:order-2">
+                    <div class="flex items-center gap-3 mb-6">
+                        <i data-lucide="sigma-square" class="w-8 h-8 text-blue-400"></i>
+                        <h2 class="text-4xl font-bold text-blue-400" style="font-family: 'DM Serif Display', serif;">The Mathematics</h2>
+                    </div>
+                    <h3 class="text-2xl text-white mb-6">Algorithms in Rice Flour</h3>
+                    <div class="space-y-6 text-lg text-gray-300 leading-relaxed">
+                        <p>
+                            Long before modern **Graph Theory**, Kolam artists were intuitively solving complex mathematical problems. A 'Pulli' (dot) Kolam is a grid-based coordinate system. The winding, single, unbroken line that loops around these dots to form a closed pattern is a perfect example of a **Eulerian Circuit**—a continuous path that visits every "edge" (the space between dots) exactly once.
+                        </p>
+                        <p>
+                            Many designs are also demonstrations of **computational thinking**, using a simple set of rules (e.g., "go around the dot, move to the next") to generate immense complexity. This is the same principle behind modern **L-systems**, the "picture-generating" algorithms that computer scientists use to model the growth of plants and fractals.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: SCIENCE -->
+        <section id="science" class="max-w-7xl mx-auto px-6 py-24 border-t border-white/10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <i data-lucide="flask-conical" class="w-8 h-8 text-green-400"></i>
+                        <h2 class="text-4xl font-bold text-green-400" style="font-family: 'DM Serif Display', serif;">The Science</h2>
+                    </div>
+                    <h3 class="text-2xl text-white mb-6">Ecology & Vibration</h3>
+                    <div class="space-y-6 text-lg text-gray-300 leading-relaxed">
+                        <p>
+                            **Ecological Harmony:** The traditional use of rice flour is a conscious scientific choice. It is a key part of the **"Pancha Maha Yagnas"** (five great sacrifices), specifically 'Bhuta Yajna'—the offering of food to other living beings. The Kolam serves as a daily meal for ants, birds, and insects, beautifully integrating the human household with the surrounding ecosystem.
+                        </p>
+                        <p>
+                            **Cymatics & Resonance:** Modern physics provides a fascinating parallel. **Cymatics** is the study of visible sound and vibration. When sound frequencies vibrate a plate covered in sand, the particles arrange themselves into intricate geometric patterns known as **Chladni figures**. These patterns bear a stunning resemblance to mandalas and Kolams, leading some to theorize that these ancient designs are visual representations of sacred sounds and harmonic frequencies.
+                        </p>
+                    </div>
+                </div>
+                <div class="glass-card p-4 rounded-3xl">
+                    <img src="https://placehold.co/800x600/064e3b/34d399?text=Cymatic+Patterns" alt="Science of Kolam" class="w-full h-auto rounded-2xl shadow-2xl">
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: MINDFULNESS (Unique Topic) -->
+        <section id="mindfulness" class="max-w-7xl mx-auto px-6 py-24 border-t border-white/10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                 <div class="order-2 lg:order-1 glass-card p-4 rounded-3xl">
+                    <img src="https://placehold.co/800x600/581c87/c084fc?text=Meditative+Art" alt="Mindfulness and Art" class="w-full h-auto rounded-2xl shadow-2xl">
+                </div>
+                <div class="order-1 lg:order-2">
+                    <div class="flex items-center gap-3 mb-6">
+                        <i data-lucide="lotus" class="w-8 h-8 text-purple-400"></i>
+                        <h2 class="text-4xl font-bold text-purple-400" style="font-family: 'DM Serif Display', serif;">Mindfulness & Therapy</h2>
+                    </div>
+                    <h3 class="text-2xl text-white mb-6">The Meditative Mandala</h3>
+                    <div class="space-y-6 text-lg text-gray-300 leading-relaxed">
+                        <p>
+                            The act of creating a Kolam is a form of **active meditation**. In an age of digital distraction, the analog process of drawing demands total cognitive presence. The focus on connecting dots, maintaining symmetry, and completing an unbroken line induces a **"flow state"**—a state of energized focus and contentment identified by psychologist Mihaly Csikszentmihalyi.
+                        </p>
+                        <p>
+                           This aligns with the work of Carl Jung, who used mandalas as a therapeutic tool, believing they were a representation of the "self." The repetitive, rule-based, and symmetrical nature of the art provides a subconscious sense of order, harmony, and balance, helping to quiet anxiety and center the mind.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ================= FAQ SECTION ================= -->
+        <section id="faq" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-24 border-t border-white/10">
+            <h2 class="text-4xl font-bold page-title mb-12 text-center" style="font-family: 'DM Serif Display', serif;">Questions? We have answers.</h2>
+            <div class="space-y-6">
+                <div class="faq-item">
+                    <h3 class="faq-question">What is "generative art"?</h3>
+                    <p class="faq-answer">Generative art is a process where the artist uses a system—like a set of rules, a computer program, or an AI—to create a work of art. In our case, we've trained an AI on the "rules" and visual language of traditional Kolam and Mandala art. When you give it a prompt, it generates a *new* design that follows those ancient principles but is entirely unique.</p>
+                </div>
+                <div class="faq-item">
+                    <h3 class="faq-question">Are the products in the shop really unique?</h3>
+                    <p class="faq-answer">Yes! Every design featured on our products (dresses, bags, etc.) is a one-of-a-kind piece generated by our AI. When you buy a product, you are owning a unique piece of art that will not be sold to anyone else. We then remove that design from our generative pool.</p>
+                </div>
+                <div class="faq-item">
+                    <h3 class="faq-question">Do you ship internationally?</h3>
+                    <p class="faq-answer">Currently, we ship to all major metropolitan areas within India. We are working hard to expand our shipping network to North America and Europe. Please subscribe to our newsletter in the footer to be notified when international shipping becomes available!</p>
+                </div>
+                <div class="faq-item">
+                    <h3 class="faq-question">What is your return policy?</h3>
+                    <p class="faq-answer">We want you to love your art. If you're not satisfied with your purchase for any reason, you can return it within 30 days of receipt for a full refund or exchange, no questions asked. Please note that the item must be in its original, unused condition.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    <!-- ================= END MAIN CONTENT ================= -->
+
+
+    <!-- ================= ALL MODALS ================= -->
+    <!-- (Copied from your index.html for consistency) -->
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="modal-overlay">
+        <div class="modal-content glass-card !max-w-3xl">
+            <div class="card-content-wrapper p-6">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title">Search Products</h2><button id="search-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10" style="cursor: pointer;"><i data-lucide="x"></i></button></div>
+                <div class="flex items-center gap-2 p-3 bg-white/10 rounded-lg border border-white/20 focus-within:border-white/50 transition-colors"><i data-lucide="search" class="text-white/50"></i><input type="text" id="search-input" placeholder="Search for dresses, bags, wall art..." class="w-full bg-transparent text-white placeholder:text-white/50 focus:outline-none"></div>
+                <div id="search-results-container" class="mt-6 max-h-[50vh] overflow-y-auto flex flex-col gap-4">
+                    <p class="text-gray-400 text-center" id="search-placeholder">Start typing to see results...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Account Modal -->
+    <div id="account-modal" class="modal-overlay">
+        <div class="modal-content glass-card !max-w-lg">
+            <div class="card-content-wrapper p-8">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title" id="account-modal-title">Login</h2><button id="account-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10" style="cursor: pointer;"><i data-lucide="x"></i></button></div>
+                <form id="login-form" class="flex flex-col gap-4">
+                    <div><label for="login-email" class="text-sm font-medium text-gray-300">Email</label><input type="email" id="login-email" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <div><label for="login-password" class="text-sm font-medium text-gray-300">Password</label><input type="password" id="login-password" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <button type="submit" class="btn mt-4 !py-3 !text-base" style="cursor: pointer;">Login</button>
+                    <p class="text-center text-gray-400 text-sm">No account? <button type="button" id="show-signup-btn" class="font-semibold text-[#ff8a00] hover:underline" style="cursor: pointer;">Sign up</button></p>
+                </form>
+                <form id="signup-form" class="hidden flex-col gap-4">
+                    <div><label for="signup-name" class="text-sm font-medium text-gray-300">Name</label><input type="text" id="signup-name" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <div><label for="signup-email" class="text-sm font-medium text-gray-300">Email</label><input type="email" id="signup-email" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <div><label for="signup-password" class="text-sm font-medium text-gray-300">Password</label><input type="password" id="signup-password" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <button type="submit" class="btn mt-4 !py-3 !text-base" style="cursor: pointer;">Create Account</button>
+                    <p class="text-center text-gray-400 text-sm">Already have an account? <button type="button" id="show-login-btn" class="font-semibold text-[#ff8a00] hover:underline" style="cursor: pointer;">Login</button></p>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cart, Wishlist, Payment Modals -->
+    <div id="cart-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <div class="card-content-wrapper p-6">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title">Your Cart</h2><button id="cart-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10" style="cursor: pointer;"><i data-lucide="x"></i></button></div>
+                <div id="cart-modal-items" class="flex flex-col gap-4 mb-6"></div>
+                <div class="border-t border-white/10 pt-6"><div class="flex justify-between items-center mb-6"><span class="text-xl text-gray-300">Total:</span><span id="cart-modal-total" class="text-3xl font-bold text-white">₹0</span></div><button id="checkout-btn" class="mesmerizing-btn w-full !text-lg" style="cursor: pointer;">Proceed to Checkout</button></div>
+            </div>
+        </div>
+    </div>
+    <div id="wishlist-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <div class="card-content-wrapper p-6">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title">Your Wishlist</h2><button id="wishlist-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10" style="cursor: pointer;"><i data-lucide="x"></i></button></div>
+                <div id="wishlist-modal-items" class="flex flex-col gap-4 mb-6"></div>
+            </div>
+        </div>
+    </div>
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal-content glass-card !max-w-lg">
+            <div class="card-content-wrapper p-8">
+                <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold page-title">Payment Gateway</h2><button id="payment-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10" style="cursor: pointer;"><i data-lucide="x"></i></button></div>
+                <p class="text-gray-300 mb-4">This is where the multi-payment gateway would be integrated!</p>
+                <p class="text-gray-400 text-sm mb-6">In a real e-commerce site, this button would redirect you to a secure payment processor like Razorpay, Stripe, or PayPal. Since this is a front-end project, we can't process real payments.</p>
+                <button id="payment-modal-ok" class="btn w-full" style="cursor: pointer;">Got it!</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ================= FOOTER ================= -->
+    <footer class="site-footer">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                
+                <div>
+                    <a href="index.html" class="inline-block mb-4">
+                        <img src="./ourLogo.jpeg" alt="RangVigyaan Logo" class="footer-logo">
+                    </a>
+                    <p class="text-sm text-gray-400 mb-6">
+                        Weaving the threads of ancient tradition with the logic of artificial intelligence to create something new.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="footer-social-link"><i data-lucide="instagram"></i></a>
+                        <a href="#" class="footer-social-link"><i data-lucide="facebook"></i></a>
+                        <a href="#" class="footer-social-link"><i data-lucide="twitter"></i></a>
+                        <a href="#" class="footer-social-link"><i data-lucide="youtube"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="footer-title">Explore</h3>
+                    <ul class="footer-links">
+                        <li><a href="ai-kolam.html" class="footer-link">AI Kolam Generator</a></li>
+                        <li><a href="shop.html" class="footer-link">Shop AI Art</a></li>
+                        <li><a href="art-hub.html" class="footer-link">3D Art Hub</a></li>
+                        <li><a href="art-hub.html#gallery-mandala" class="footer-link">Mandala Gallery</a></li>
+                        <li><a href="learn.html#diy-kits" class="footer-link">DIY Kits</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="footer-title">About Us</h3>
+                    <ul class="footer-links">
+                        <!-- UPDATED: These links now work with anchor scrolling -->
+                        <li><a href="#about-us" class="footer-link">Our Story</a></li>
+                        <li><a href="learn.html" class="footer-link">The Technology</a></li>
+                        <li><a href="#faq" class="footer-link">FAQ</a></li>
+                        <li><a href="#" class="footer-link">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="footer-title">Join Our Community</h3>
+                    <p class="text-sm text-gray-400 mb-4">Get exclusive updates, new art drops, and a peek behind the code.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="your.email@example.com" class="w-full px-4 py-2 bg-gray-800/50 text-white border border-white/20 rounded-l-md focus:outline-none focus:border-accent-color">
+                        <button type="submit" class="p-3 bg-[#ff8a00] text-white rounded-r-md"><i data-lucide="arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="footer-bottom flex flex-col md:flex-row justify-between items-center text-gray-500">
+                <p class="text-sm">&copy; 2025 RangVigyaan. All Rights Reserved.</p>
+                <div class="flex space-x-4 text-sm">
+                    <a href="#" class="footer-link !text-gray-500 hover:!text-white">Terms & Conditions</a>
+                    <a href="#" class="footer-link !text-gray-500 hover:!text-white">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- ================= JAVASCRIPT ================= -->
+    
+    <!-- Main App Script (Handles Modals, Icons, etc.) -->
+    <script src="app.js"></script>
+
+    <!-- Page-Specific Script for Symmetry Game -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const drawCanvas = document.getElementById('canvas-draw');
+            const guideCanvas = document.getElementById('canvas-guides');
+            
+            // Check if canvases exist on this page
+            if (!drawCanvas || !guideCanvas) return;
+
+            const ctxDraw = drawCanvas.getContext('2d');
+            const ctxGuide = guideCanvas.getContext('2d');
+            
+            let symmetry = 2; // Default symmetry
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            
+            const controls = document.getElementById('symmetry-controls');
+
+            // --- Control Functions ---
+            
+            function setSymmetry(num) {
+                symmetry = num;
+                // Update active button state
+                if (controls) {
+                    controls.querySelectorAll('button[data-symmetry]').forEach(btn => btn.classList.remove('active'));
+                    const activeBtn = controls.querySelector(`[data-symmetry="${num}"]`);
+                    if (activeBtn) activeBtn.classList.add('active');
+                }
+                drawGuides();
+            }
+
+            function clearCanvas() {
+                ctxDraw.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            }
+
+            function drawGuides() {
+                ctxGuide.clearRect(0, 0, guideCanvas.width, guideCanvas.height);
+                const w = guideCanvas.width;
+                const h = guideCanvas.height;
+                const cx = w / 2;
+                const cy = h / 2;
+                
+                ctxGuide.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                ctxGuide.lineWidth = 1;
+                
+                // We need symmetry / 2 lines
+                const segments = symmetry / 2;
+                
+                for (let i = 0; i < segments; i++) {
+                    const angle = (i / segments) * Math.PI;
+                    ctxGuide.beginPath();
+                    ctxGuide.moveTo(cx + Math.cos(angle) * w, cy + Math.sin(angle) * h);
+                    ctxGuide.lineTo(cx - Math.cos(angle) * w, cy - Math.sin(angle) * h);
+                    ctxGuide.stroke();
+                }
+            }
+
+            function resizeCanvas() {
+                const container = drawCanvas.parentElement;
+                if (!container) return;
+                const size = container.clientWidth;
+                
+                drawCanvas.width = size;
+                drawCanvas.height = size;
+                guideCanvas.width = size;
+                guideCanvas.height = size;
+                
+                // Set drawing style
+                ctxDraw.strokeStyle = '#FFFFFF'; // White lines
+                ctxDraw.lineWidth = 3;
+                ctxDraw.lineCap = 'round';
+                ctxDraw.lineJoin = 'round';
+                
+                drawGuides();
+            }
+
+            // --- Drawing Event Handlers ---
+
+            function getMousePos(e) {
+                const rect = drawCanvas.getBoundingClientRect();
+                let x, y;
+                if (e.touches) {
+                    x = e.touches[0].clientX - rect.left;
+                    y = e.touches[0].clientY - rect.top;
+                } else {
+                    x = e.clientX - rect.left;
+                    y = e.clientY - rect.top;
+                }
+                return { x, y };
+            }
+
+            function startDraw(e) {
+                e.preventDefault();
+                isDrawing = true;
+                const { x, y } = getMousePos(e);
+                [lastX, lastY] = [x, y];
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                e.preventDefault();
+                
+                const { x, y } = getMousePos(e);
+                const w = drawCanvas.width;
+                const h = drawCanvas.height;
+                const cx = w / 2;
+                const cy = h / 2;
+                
+                const segmentAngle = (2 * Math.PI) / symmetry;
+
+                // Translate coordinates to be relative to the center
+                const oldX_c = lastX - cx;
+                const oldY_c = lastY - cy;
+                const newX_c = x - cx;
+                const newY_c = y - cy;
+
+                // Get polar coordinates (angle and radius) for old and new points
+                const oldRad = Math.hypot(oldX_c, oldY_c);
+                const oldAngle = Math.atan2(oldY_c, oldX_c);
+                const newRad = Math.hypot(newX_c, newY_c);
+                const newAngle = Math.atan2(newY_c, newX_c);
+
+                // Draw for each segment
+                for (let i = 0; i < symmetry; i++) {
+                    const angleOffset = i * segmentAngle;
+                    
+                    // 1. Draw the ROTATED line
+                    let rotOldX = cx + oldRad * Math.cos(oldAngle + angleOffset);
+                    let rotOldY = cy + oldRad * Math.sin(oldAngle + angleOffset);
+                    let rotNewX = cx + newRad * Math.cos(newAngle + angleOffset);
+                    let rotNewY = cy + newRad * Math.sin(newAngle + angleOffset);
+                    
+                    ctxDraw.beginPath();
+                    ctxDraw.moveTo(rotOldX, rotOldY);
+                    ctxDraw.lineTo(rotNewX, rotNewY);
+                    ctxDraw.stroke();
+
+                    // 2. Draw the REFLECTED line
+                    // (Reflect across X-axis by negating angle, then rotate by offset)
+                    let refOldX = cx + oldRad * Math.cos(-oldAngle + angleOffset);
+                    let refOldY = cy + oldRad * Math.sin(-oldAngle + angleOffset);
+                    let refNewX = cx + newRad * Math.cos(-newAngle + angleOffset);
+                    let refNewY = cy + newRad * Math.sin(-newAngle + angleOffset);
+                    
+                    ctxDraw.beginPath();
+                    ctxDraw.moveTo(refOldX, refOldY);
+                    ctxDraw.lineTo(refNewX, refNewY);
+                    ctxDraw.stroke();
+                }
+                
+                [lastX, lastY] = [x, y];
+            }
+
+            function stopDraw() {
+                isDrawing = false;
+            }
+
+            // --- Attach Listeners ---
+            if (controls) {
+                controls.addEventListener('click', (e) => {
+                    const btn = e.target.closest('button');
+                    if (!btn) return;
+                    
+                    if (btn.dataset.symmetry) {
+                        setSymmetry(parseInt(btn.dataset.symmetry));
+                    }
+                    if (btn.id === 'clear-canvas-btn') {
+                        clearCanvas();
+                    }
+                });
+            }
+
+            // Mouse events
+            drawCanvas.addEventListener('mousedown', startDraw);
+            drawCanvas.addEventListener('mousemove', draw);
+            drawCanvas.addEventListener('mouseup', stopDraw);
+            drawCanvas.addEventListener('mouseout', stopDraw);
+            
+            // Touch events for mobile
+            drawCanvas.addEventListener('touchstart', startDraw, { passive: false });
+            drawCanvas.addEventListener('touchmove', draw, { passive: false });
+            drawCanvas.addEventListener('touchend', stopDraw);
+
+            // Resize canvas on window resize
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Initial setup on load
+            resizeCanvas();
+            setSymmetry(2); // Default to 2-line symmetry
+        });
+    </script>
+</body>
+</html>
+
+
+
+/*
+============================================================
+NEW STYLES FOR LEARN.HTML (Light Theme)
+============================================================
+*/
+
+/* --- Symmetry Weaver Game --- */
+.symmetry-game-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    border: 1px solid #e0e0e0; /* Clean border */
+}
+.symmetry-game-container canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+#canvas-guides {
+    z-index: 1;
+    opacity: 0.5;
+}
+#canvas-draw {
+    z-index: 2;
+    cursor: crosshair;
+}
+.symmetry-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+.symmetry-controls button {
+    background-color: #f3f4f6; /* Light gray */
+    border: 1px solid #e0e0e0;
+    color: #374151; /* Dark text */
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.symmetry-controls button:hover {
+    background-color: #e5e7eb;
+    border-color: #d1d5db;
+}
+.symmetry-controls button.active {
+    background-color: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+.symmetry-controls button#clear-canvas-btn {
+    background-color: #ef4444; /* Red */
+    border-color: #ef4444;
+    color: white;
+}
+.symmetry-controls button#clear-canvas-btn:hover {
+    background-color: #dc2626; /* Darker red */
+}
+
+/* --- Light Theme FAQ --- */
+/* (This replaces your old .faq-item rule) */
+.faq-item {
+    background: #f9f9f9; /* Very light gray background */
+    border: 1px solid #e0e0e0;
+    border-radius: 1rem;
+    padding: 1.5rem;
+}
+.faq-item h3.faq-question {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827; /* Dark text */
+    margin-bottom: 0.75rem;
+}
+.faq-item p.faq-answer {
+    font-size: 1rem;
+    color: #374151; /* Medium-dark text */
+    line-height: 1.6;
+}

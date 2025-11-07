@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Kolam - RangVigyaan</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Jost:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Base styles for this dark page */
+        :root { --glow-color: #e52e71; }
+        body {
+            font-family: 'Jost', sans-serif;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            overflow-x: hidden;
+            cursor: none; /* Hide default cursor */
+        }
+        #three-canvas { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
+        }
+        .content-section { display: block; } /* Show all sections on this page */
+
+        /* Custom cursor styles */
+        .cursor-dot {
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
+            border-radius: 50%; z-index: 10000; pointer-events: none;
+            width: 8px; height: 8px; background-color: var(--glow-color);
+            transition: transform 0.2s ease-out;
+        }
+        .sparkle-trail {
+            position: fixed; border-radius: 50%; width: 8px; height: 8px;
+            z-index: 9999; pointer-events: none;
+        }
+        .sparkle-particle {
+            position: absolute; width: 10px; height: 10px; border-radius: 50%;
+        }
+
+        /* Nav overrides for this page */
+        nav {
+            background: #6f2e21;
+        }
+        .nav-link:hover, .nav-icon:hover { 
+            color: #fbbe28;
+        }
+        .nav-link.active {
+            color: #fbbe28;
+        }
+    </style>
+</head>
+
+<body class="site-container">
+    <div class="cursor-dot"></div>
+    <canvas id="three-canvas"></canvas>
+
+    <nav class="sticky top-0 z-50">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20 relative">
+                <a id="ourLogo" href="index.html" class="cursor-pointer">
+                    <img src="./ourLogo.jpeg" alt="RangVigyaan">
+                </a>
+                <div class="hidden md:flex items-center space-x-6 absolute left-1/2 -translate-x-1/2">
+                    <a href="index.html" class="nav-link">Home</a>
+                    <a href="ai-kolam.html" class="nav-link active">AI Kolam</a>
+                    <a href="shop.html" class="nav-link">Shop</a>
+                    <a href="learn.html" class="nav-link">Learn</a>
+                    <a href="gallery-3d.html" class="nav-link">Art Hub</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="nav-icon" id="search-btn" title="Search"><i data-lucide="search"></i></button>
+                    <button class="nav-icon" id="account-btn" title="Account"><i data-lucide="user"></i></button>
+                    <button class="nav-icon relative" id="wishlist-btn" title="Wishlist">
+                        <i data-lucide="heart"></i>
+                        <span id="wishlist-counter" class="nav-counter hidden">0</span>
+                    </button>
+                    <button class="nav-icon relative" id="cart-btn" title="Cart">
+                        <i data-lucide="shopping-cart"></i>
+                        <span id="cart-counter" class="nav-counter hidden">0</span>
+                    </button>
+                    <button id="mobile-menu-btn" class="nav-icon md:hidden ml-2">
+                        <i data-lucide="menu"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+         <div id="mobile-menu" class="hidden md:hidden bg-[#6f2e21] border-t border-gray-700">
+            <div class="flex flex-col space-y-2 p-4">
+                <a href="index.html" class="nav-link text-left p-2">Home</a>
+                <a href="ai-kolam.html" class="nav-link text-left p-2 active">AI Kolam</a>
+                <a href="shop.html" class="nav-link text-left p-2">Shop</a>
+                <a href="learn.html" class="nav-link text-left p-2">Learn</a>
+                <a href="gallery-3d.html" class="nav-link text-left p-2">Art Hub</a>
+            </div>
+        </div>
+    </nav>
+    <main class="relative">
+        
+        <section id="ai-kolam-chat" class="content-section active">
+            <div class="flex-grow flex flex-col">
+                <main class="gemini-main">
+                    <div id="gemini-chat-area" class="gemini-chat-area">
+                        <div id="chat-welcome" class="text-center text-gray-400 p-8 max-w-3xl mx-auto">
+                            <h2 class="text-5xl md:text-6xl font-bold header-title mb-4" style="font-family: 'DM Serif Display', serif;">AI Kolam Weaver</h2>
+                            <p class="text-lg">Describe a design (e.g., "draw a lotus" or "create a diya pattern"), and I'll bring it to life in the canvas below.</p>
+                        </div>
+                    </div>
+                    <div class="gemini-input-area">
+                        <div class="gemini-input-bar-wrapper">
+                            <div class="gemini-input-bar glass-card flex items-center p-2 gap-2">
+                                <button class="gemini-tool-btn" title="Upload Image"><i data-lucide="image"></i></button>
+                                <textarea id="prompt-input" rows="1" placeholder="e.g., show me a complex pulli kolam" class="flex-grow bg-transparent border-none text-white resize-none p-2 text-base focus:outline-none"></textarea>
+                                <button id="send-btn" class="gemini-tool-btn hidden" title="Send"><i data-lucide="arrow-up"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </section>
+
+        <section id="ai-kolam-manual" class="content-section active max-w-7xl mx-auto my-12 p-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold page-title" style="font-family: 'DM Serif Display', serif;">Or, Weave Manually</h2>
+                <p class="text-gray-400">Use the controls to generate your own masterpiece.</p>
+            </div>
+
+            <div class="generator-container">
+                <div class="generator-controls space-y-6">
+                    <div>
+                        <label for="pattern-type">1. Select Pattern</label>
+                        <select id="pattern-type" class="w-full">
+                            <option value="flower">Classic Flower</option>
+                            <option value="lotus">Lotus Mandala</option>
+                            <option value="diya">Diya Circle</option>
+                            <option value="pulli">Sikku Kolam (Interwoven)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="complexity-slider">2. Adjust Complexity: <span id="complexity-value" class="font-bold text-white">5</span></label>
+                        <input type="range" id="complexity-slider" min="3" max="10" value="5" class="w-full">
+                    </div>
+                    <button id="generate-btn" class="btn">
+                        <i data-lucide="wand-2" class="inline-block mr-2 w-5 h-5"></i>
+                        Weave Artwork
+                    </button>
+                </div>
+                
+                <div class="w-full aspect-square flex items-center justify-center bg-black/20 rounded-2xl p-4 border border-white/10">
+                    <svg id="kolam-svg" width="100%" height="100%" viewBox="0 0 500 500"></svg>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    <div id="search-modal" class="modal-overlay">
+        <div class="modal-content glass-card !max-w-3xl">
+            <div class="card-content-wrapper p-6">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title">Search Products</h2><button id="search-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <div class="flex items-center gap-2 p-3 bg-white/10 rounded-lg border border-white/20 focus-within:border-white/50 transition-colors"><i data-lucide="search" class="text-white/50"></i><input type="text" id="search-input" placeholder="Search for dresses, bags, wall art..." class="w-full bg-transparent text-white placeholder:text-white/50 focus:outline-none"></div>
+                <div id="search-results-container" class="mt-6 max-h-[50vh] overflow-y-auto flex flex-col gap-4">
+                    <p class="text-gray-400 text-center" id="search-placeholder">Start typing to see results...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="account-modal" class="modal-overlay">
+        <div class="modal-content glass-card !max-w-lg">
+            <div class="card-content-wrapper p-8">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title" id="account-modal-title">Login</h2><button id="account-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <form id="login-form" class="flex flex-col gap-4">
+                    <div><label for="login-email" class="text-sm font-medium text-gray-300">Email</label><input type="email" id="login-email" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <div><label for="login-password" class="text-sm font-medium text-gray-300">Password</label><input type="password" id="login-password" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <button type="submit" class="btn mt-4 !py-3 !text-base">Login</button>
+                    <p class="text-center text-gray-400 text-sm">No account? <button type="button" id="show-signup-btn" class="font-semibold text-accent-color hover:underline">Sign up</button></p>
+                </form>
+                <form id="signup-form" class="hidden flex-col gap-4">
+                    <div><label for="signup-name" class="text-sm font-medium text-gray-300">Name</label><input type="text" id="signup-name" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <div><label for="signup-email" class="text-sm font-medium text-gray-300">Email</label><input type="email" id="signup-email" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <div><label for="signup-password" class="text-sm font-medium text-gray-300">Password</label><input type="password" id="signup-password" class="w-full p-3 mt-1 bg-white/10 text-white rounded-lg border border-white/20 focus:outline-none focus:border-white/50" required></div>
+                    <button type="submit" class="btn mt-4 !py-3 !text-base">Create Account</button>
+                    <p class="text-center text-gray-400 text-sm">Already have an account? <button type="button" id="show-login-btn" class="font-semibold text-accent-color hover:underline">Login</button></p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="cart-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <div class="card-content-wrapper p-6">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title">Your Cart</h2><button id="cart-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <div id="cart-modal-items" class="flex flex-col gap-4 mb-6"></div>
+                <div class="border-t border-white/10 pt-6"><div class="flex justify-between items-center mb-6"><span class="text-xl text-gray-300">Total:</span><span id="cart-modal-total" class="text-3xl font-bold text-white">₹0</span></div><button id="checkout-btn" class="mesmerizing-btn w-full !text-lg">Proceed to Checkout</button></div>
+            </div>
+        </div>
+    </div>
+    <div id="wishlist-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <div class="card-content-wrapper p-6">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-3xl font-bold page-title">Your Wishlist</h2><button id="wishlist-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <div id="wishlist-modal-items" class="flex flex-col gap-4 mb-6"></div>
+            </div>
+        </div>
+    </div>
+    <div id="payment-modal" class="modal-overlay">
+        <div class="modal-content glass-card !max-w-lg">
+            <div class="card-content-wrapper p-8">
+                <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold page-title">Payment Gateway</h2><button id="payment-modal-close" class="icon-btn !text-white !bg-transparent hover:!bg-white/10"><i data-lucide="x"></i></button></div>
+                <p class="text-gray-300 mb-4">This is where the multi-payment gateway would be integrated!</p>
+                <p class="text-gray-400 text-sm mb-6">In a real e-commerce site, this button would redirect you to a secure payment processor like Razorpay, Stripe, or PayPal. Since this is a front-end project, we can't process real payments.</p>
+                <button id="payment-modal-ok" class="btn w-full">Got it!</button>
+            </div>
+        </div>
+    </div>
+    <footer class="site-footer">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div>
+                    <a href="index.html" class="inline-block mb-4">
+                        <img src="./ourLogo.jpeg" alt="RangVigyaan Logo" class="footer-logo">
+                    </a>
+                    <p class="text-sm text-gray-400 mb-6">
+                        Weaving the threads of ancient tradition with the logic of artificial intelligence to create something new.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="footer-social-link"><i data-lucide="instagram"></i></a>
+                        <a href="#" class="footer-social-link"><i data-lucide="facebook"></i></a>
+                        <a href="#" class="footer-social-link"><i data-lucide="twitter"></i></a>
+                        <a href="#" class="footer-social-link"><i data-lucide="youtube"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="footer-title">Explore</h3>
+                    <ul class="footer-links">
+                        <li><a href="ai-kolam.html" class="footer-link">AI Kolam Generator</a></li>
+                        <li><a href="shop.html" class="footer-link">Shop AI Art</a></li>
+                        <li><a href="art-hub.html" class="footer-link">3D Art Hub</a></li>
+                        <li><a href="art-hub.html#gallery-mandala" class="footer-link">Mandala Gallery</a></li>
+                        <li><a href="learn.html#diy-kits" class="footer-link">DIY Kits</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="footer-title">About Us</h3>
+                    <ul class="footer-links">
+                        <li><a href="learn.html#about-us" class="footer-link">Our Story</a></li>
+                        <li><a href="learn.html" class="footer-link">The Technology</a></li>
+                        <li><a href="learn.html#faq" class="footer-link">FAQ</a></li>
+                        <li><a href="learn.html#contact-us" class="footer-link">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="footer-title">Join Our Community</h3>
+                    <p class="text-sm text-gray-400 mb-4">Get exclusive updates, new art drops, and a peek behind the code.</p>
+                    <form class="flex">
+                        <input type="email" placeholder="your.email@example.com" class="w-full px-4 py-2 bg-gray-800/50 text-white border border-white/20 rounded-l-md focus:outline-none focus:border-accent-color">
+                        <button type="submit" class="p-3 bg-accent-color text-white rounded-r-md"><i data-lucide="arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom flex flex-col md:flex-row justify-between items-center text-gray-500">
+                <p class="text-sm">&copy; 2025 RangVigyaan. All Rights Reserved.</p>
+                <div class="flex space-x-4 text-sm">
+                    <a href="learn.html#terms" class="footer-link !text-gray-500 hover:!text-white">Terms & Conditions</a>
+                    <a href="learn.html#privacy" class="footer-link !text-gray-500 hover:!text-white">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="app.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- [1] GLOBAL ELEMENTS ---
+            const VIBRANT_COLORS = ['#ff8a00', '#e52e71', '#8a2be2', '#00bfff', '#32cd32', '#ffdf00'];
+            
+            // Chatbot elements
+            const promptInput = document.getElementById('prompt-input');
+            const sendBtn = document.getElementById('send-btn');
+            const chatArea = document.getElementById('gemini-chat-area');
+            const chatWelcome = document.getElementById('chat-welcome');
+
+            // Manual generator elements
+            const manualSvgCanvas = document.getElementById('kolam-svg');
+            const generateBtn = document.getElementById('generate-btn');
+            const patternSelect = document.getElementById('pattern-type');
+            const complexitySlider = document.getElementById('complexity-slider');
+            const complexityValue = document.getElementById('complexity-value');
+            const manualGeneratorSection = document.getElementById('ai-kolam-manual');
+
+            let isDrawing = false; // Prevents multiple drawings at once
+
+            // --- [2] DRAWING ENGINE (RESTORED TO DOTS-FIRST) ---
+            
+            async function animateSVGPaths(targetSvg, commands) {
+                if (!targetSvg) return;
+                targetSvg.innerHTML = ''; // Clear previous drawing
+                
+                const svgNS = "http://www.w3.org/2000/svg";
+                const svg = document.createElementNS(svgNS, 'svg');
+                svg.setAttribute('viewBox', '0 0 500 500');
+                svg.style.width = '100%';
+                svg.style.height = '100%';
+                targetSvg.appendChild(svg);
+                
+                // Separate dots from lines
+                const dots = commands.filter(c => c.fill === 'white');
+                const lines = commands.filter(c => c.fill !== 'white');
+
+                // 1. Draw dots (fast, staggered)
+                for (const c of dots) {
+                    const p = document.createElementNS(svgNS, 'path');
+                    p.setAttribute('d', c.path);
+                    p.setAttribute('fill', c.color);
+                    p.setAttribute('stroke', c.color);
+                    svg.appendChild(p);
+                    p.style.transform = 'scale(0)';
+                    p.style.transformOrigin = 'center';
+                    p.style.transition = 'transform 0.2s ease-out';
+                    await new Promise(r => setTimeout(r, 20)); // Stagger dot drawing
+                    p.style.transform = 'scale(1)';
+                }
+
+                // Wait for dots to settle
+                if (dots.length > 0) {
+                    await new Promise(r => setTimeout(r, 500));
+                }
+
+                // 2. Draw lines (slowly, one by one)
+                for (const c of lines) {
+                    const p = document.createElementNS(svgNS, 'path');
+                    p.setAttribute('d', c.path);
+                    p.setAttribute('fill', c.fill || 'none');
+                    p.setAttribute('stroke', c.color);
+                    p.setAttribute('stroke-width', c.strokeWidth || 3);
+                    p.setAttribute('stroke-linecap', 'round');
+                    if(c.transform) p.setAttribute('transform', c.transform);
+                    svg.appendChild(p);
+                    
+                    const len = p.getTotalLength();
+                    if (len > 0) {
+                        p.style.strokeDasharray = len;
+                        p.style.strokeDashoffset = len;
+                        await new Promise(res => {
+                            p.getBoundingClientRect(); // Trigger reflow
+                            // Calculate duration based on length for consistent speed
+                            const dur = Math.max(0.5, len / 200); // 200px per second
+                            p.style.transition = `stroke-dashoffset ${dur}s ease-in-out`;
+                            p.style.strokeDashoffset = '0';
+                            setTimeout(res, dur * 1000 + 50); // +50ms buffer
+                        });
+                    }
+                }
+            }
+
+
+            // --- [3] IMPROVED DRAWING ALGORITHMS ---
+            
+            // (RESTORED) Default flower pattern
+            function generateDefaultFlower(complexity) {
+                const commands = [];
+                const center = 250;
+                const petals = complexity + 2; // Use complexity
+                const angleStep = (2 * Math.PI) / petals;
+                
+                // Central circle
+                commands.push({ path: `M ${center - 15} ${center} A 15 15 0 1 1 ${center + 15} ${center} A 15 15 0 1 1 ${center - 15} ${center}`, color: '#ffdf00', fill: '#ffdf00' });
+                
+                // Petals
+                for (let i = 0; i < petals; i++) {
+                    const angle = i * angleStep;
+                    const color = VIBRANT_COLORS[i % VIBRANT_COLORS.length];
+                    const p1x = center + 30 * Math.cos(angle);
+                    const p1y = center + 30 * Math.sin(angle);
+                    const tipX = center + 150 * Math.cos(angle);
+                    const tipY = center + 150 * Math.sin(angle);
+                    const cp1x = center + 120 * Math.cos(angle - angleStep/2);
+                    const cp1y = center + 120 * Math.sin(angle - angleStep/2);
+                    const cp2x = center + 120 * Math.cos(angle + angleStep/2);
+                    const cp2y = center + 120 * Math.sin(angle + angleStep/2);
+                    
+                    commands.push({ path: `M ${p1x} ${p1y} C ${cp1x} ${cp1y}, ${tipX} ${tipY}, ${tipX} ${tipY}`, color: color, strokeWidth: 4 });
+                    commands.push({ path: `M ${p1x} ${p1y} C ${cp2x} ${cp2y}, ${tipX} ${tipY}, ${tipX} ${tipY}`, color: color, strokeWidth: 4 });
+                }
+                return commands;
+            }
+
+            // IMPROVED: Generates a multi-layered, beautiful lotus
+            function generateLotusKolam(complexity) {
+                const commands = [];
+                const center = 250;
+                const petals = complexity + 2; // Use complexity
+                const layers = 3;
+                const baseRadius = 40;
+                const angleStep = (2 * Math.PI) / petals;
+
+                // 1. Draw dots for the base
+                for (let i = 0; i < petals; i++) {
+                    const angle = i * angleStep;
+                    const x = center + baseRadius * Math.cos(angle);
+                    const y = center + baseRadius * Math.sin(angle);
+                    commands.push({ path: `M ${x-2} ${y} A 2 2 0 1 1 ${x+2} ${y} A 2 2 0 1 1 ${x-2} ${y}`, color: 'white', fill: 'white' });
+                }
+
+                // 2. Draw petal layers (lines)
+                for (let l = layers; l >= 1; l--) {
+                    const radius = baseRadius * l;
+                    const petalLength = 70 + l * 20;
+                    
+                    for (let i = 0; i < petals; i++) {
+                        const angle = i * angleStep;
+                        const color = VIBRANT_COLORS[(l + i) % VIBRANT_COLORS.length];
+                        
+                        const tipX = center + (radius + petalLength) * Math.cos(angle + angleStep / 2);
+                        const tipY = center + (radius + petalLength) * Math.sin(angle + angleStep / 2);
+                        
+                        const p1x = center + radius * Math.cos(angle);
+                        const p1y = center + radius * Math.sin(angle);
+                        const p2x = center + radius * Math.cos(angle + angleStep);
+                        const p2y = center + radius * Math.sin(angle + angleStep);
+
+                        commands.push({ path: `M ${p1x} ${p1y} Q ${tipX} ${tipY} ${p2x} ${p2y}`, color: color, strokeWidth: 3 });
+                    }
+                }
+                // 3. Central circle
+                commands.push({ path: `M ${center - 15} ${center} A 15 15 0 1 1 ${center + 15} ${center} A 15 15 0 1 1 ${center - 15} ${center}`, color: '#ffdf00', fill: '#ffdf00' });
+                return commands;
+            }
+            
+            // IMPROVED: Generates a circle of detailed, glowing diyas
+            function generateDiyaKolam(complexity) {
+                const commands = [];
+                const center = 250;
+                const numDiyas = complexity; // Use complexity
+                const angleStep = (2 * Math.PI) / numDiyas;
+                const circleRadius = 150;
+
+                // 1. Draw dots
+                for(let i = 0; i < numDiyas; i++) {
+                    const angle = i * angleStep;
+                    const x = center + circleRadius * Math.cos(angle);
+                    const y = center + circleRadius * Math.sin(angle);
+                    commands.push({ path: `M ${x-2} ${y} A 2 2 0 1 1 ${x+2} ${y} A 2 2 0 1 1 ${x-2} ${y}`, color: 'white', fill: 'white' });
+                }
+
+                // 2. Draw lines (diyas)
+                for(let i = 0; i < numDiyas; i++) {
+                    const angle = i * angleStep;
+                    const x = center + circleRadius * Math.cos(angle);
+                    const y = center + circleRadius * Math.sin(angle);
+                    const size = 40;
+                    
+                    // Base of the diya (arc)
+                    const pathBase = `M ${x - size/2} ${y} A ${size/2} ${size/2} 0 0 0 ${x + size/2} ${y}`;
+                    commands.push({ path: pathBase, color: VIBRANT_COLORS[i % VIBRANT_COLORS.length], strokeWidth: 3 });
+                    
+                    // Top line of the diya
+                    const pathTop = `M ${x - size/2} ${y} L ${x + size/2} ${y}`;
+                    commands.push({ path: pathTop, color: VIBRANT_COLORS[i % VIBRANT_COLORS.length], strokeWidth: 3 });
+
+                    // Flame
+                    const flameHeight = size * 0.8;
+                    const flameWidth = size * 0.4;
+                    const pathFlame = `M ${x} ${y} Q ${x - flameWidth} ${y - flameHeight/2}, ${x} ${y - flameHeight} Q ${x + flameWidth} ${y - flameHeight/2}, ${x} ${y} Z`;
+                    commands.push({ path: pathFlame, color: '#ffdf00', fill: 'rgba(255, 223, 0, 0.7)' });
+                }
+                return commands;
+            }
+            
+            // IMPROVED: Generates a true interwoven Sikku Kolam
+            function generatePulliKolam(complexity) {
+                const commands = [];
+                const center = 250;
+                let gridSize = complexity;
+                if (gridSize < 3) gridSize = 3;
+                // Sikku kolams look best with odd-numbered grids
+                if (gridSize % 2 === 0) gridSize++; 
+                
+                const totalSize = 400;
+                const spacing = totalSize / (gridSize - 1);
+                
+                // 1. Draw the dots (Pulli)
+                for (let i = 0; i < gridSize; i++) {
+                    for (let j = 0; j < gridSize; j++) {
+                        const x = center - totalSize / 2 + i * spacing;
+                        const y = center - totalSize / 2 + j * spacing;
+                        commands.push({ path: `M ${x-2} ${y} A 2 2 0 1 1 ${x+2} ${y} A 2 2 0 1 1 ${x-2} ${y}`, color: 'white', fill: 'white' });
+                    }
+                }
+
+                // 2. Draw the interwoven lines (Kambi)
+                const halfGrid = Math.floor(gridSize / 2);
+                for (let layer = 0; layer < halfGrid; layer++) {
+                    const color = VIBRANT_COLORS[layer % VIBRANT_COLORS.length];
+                    const offset = layer * spacing;
+                    const half = spacing / 2;
+                    
+                    // Get corner points for this diamond layer
+                    const top = { x: center, y: center - totalSize / 2 + offset };
+                    const left = { x: center - totalSize / 2 + offset, y: center };
+                    const bottom = { x: center, y: center + totalSize / 2 - offset };
+                    const right = { x: center + totalSize / 2 - offset, y: center };
+                    
+                    // Draw the 4 arcs of the diamond
+                    commands.push({ path: `M ${top.x} ${top.y} Q ${top.x + half} ${top.y + half}, ${right.x} ${right.y}`, color: color });
+                    commands.push({ path: `M ${right.x} ${right.y} Q ${right.x - half} ${right.y + half}, ${bottom.x} ${bottom.y}`, color: color });
+                    commands.push({ path: `M ${bottom.x} ${bottom.y} Q ${bottom.x - half} ${bottom.y - half}, ${left.x} ${left.y}`, color: color });
+                    commands.push({ path: `M ${left.x} ${left.y} Q ${left.x + half} ${left.y - half}, ${top.x} ${top.y}`, color: color });
+                }
+                return commands;
+            }
+
+            // --- [4] CENTRAL CONTROL FUNCTION ---
+            
+            async function startDrawing(pattern, complexity) {
+                if (isDrawing) return;
+                
+                isDrawing = true;
+                disableControls(true);
+                
+                let commands = [];
+                
+                if (pattern === 'lotus') {
+                    commands = generateLotusKolam(complexity);
+                } else if (pattern === 'diya') {
+                    commands = generateDiyaKolam(complexity);
+                } else if (pattern === 'pulli') {
+                    commands = generatePulliKolam(complexity);
+                } else {
+                    commands = generateDefaultFlower(complexity);
+                }
+
+                await animateSVGPaths(manualSvgCanvas, commands);
+            
+                isDrawing = false;
+                disableControls(false);
+            }
+
+            // Helper to disable all controls
+            function disableControls(disabled) {
+                if(generateBtn) {
+                    generateBtn.disabled = disabled;
+                    generateBtn.textContent = disabled ? 'Weaving...' : 'Weave Artwork';
+                }
+                if(sendBtn) {
+                    sendBtn.disabled = disabled;
+                }
+                if(promptInput) promptInput.disabled = disabled;
+                if(patternSelect) patternSelect.disabled = disabled;
+                if(complexitySlider) complexitySlider.disabled = disabled;
+            }
+
+            // --- [5] EVENT LISTENERS ---
+
+            // --- Chatbot Listeners ---
+            if (promptInput && sendBtn && chatArea) {
+                promptInput.addEventListener('input', () => {
+                    if (sendBtn) sendBtn.classList.toggle('hidden', promptInput.value.trim().length === 0);
+                });
+                sendBtn.addEventListener('click', handlePrompt);
+                promptInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handlePrompt();
+                    }
+                });
+            }
+
+            // --- Manual Generator Listeners ---
+            if (complexitySlider && complexityValue) {
+                complexitySlider.addEventListener('input', () => {
+                    complexityValue.textContent = complexitySlider.value;
+                });
+            }
+            if (generateBtn) {
+                generateBtn.addEventListener('click', () => {
+                    if (!patternSelect || !complexitySlider) return;
+                    startDrawing(patternSelect.value, parseInt(complexitySlider.value));
+                });
+            }
+
+            // --- [6] CHATBOT "SMART" LOGIC ---
+            
+            async function handlePrompt() {
+                const promptText = promptInput.value.trim().toLowerCase();
+                if (isDrawing || promptText === '') return;
+                
+                if (chatWelcome) chatWelcome.style.display = 'none'; // Hide welcome message
+                
+                addMessageToChat(promptInput.value, 'user');
+                const userText = promptInput.value; // Save original case for display
+                promptInput.value = '';
+                if(sendBtn) sendBtn.classList.add('hidden');
+                
+                const thinkingMessage = addMessageToChat('...', 'ai', true);
+                await new Promise(r => setTimeout(r, 1000)); // Simulate thinking
+                
+                // --- Simple Keyword Logic ---
+                let pattern = 'flower'; // Default
+                let responseText = `I'll draw a classic flower pattern for you in the weaver below. You can also try asking for "lotus", "diya", or "pulli".`;
+                let complexity = 5; // Default
+
+                if (promptText.includes('lotus')) {
+                    pattern = 'lotus';
+                    responseText = "A lotus! A beautiful choice. Watch the weaver below.";
+                } else if (promptText.includes('diya') || promptText.includes('lamp')) {
+                    pattern = 'diya';
+                    responseText = "A circle of diyas, coming right up. Check the weaver below!";
+                } else if (promptText.includes('pulli') || promptText.includes('sikku') || promptText.includes('interwoven')) {
+                    pattern = 'pulli';
+                    responseText = "A complex Sikku Kolam! My favorite. See the drawing canvas below.";
+                }
+
+                // Update controls
+                if(patternSelect) patternSelect.value = pattern;
+                if(complexitySlider) complexitySlider.value = complexity;
+                if(complexityValue) complexityValue.textContent = complexity;
+
+                // Update chat
+                if(thinkingMessage) thinkingMessage.remove();
+                addMessageToChat(responseText, 'ai');
+                
+                // Scroll to the generator
+                if(manualGeneratorSection) {
+                    manualGeneratorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                // Call the main drawing engine
+                startDrawing(pattern, complexity);
+            }
+
+            // Helper to add message to chat UI
+            function addMessageToChat(content, role, isThinking = false) {
+                if (!chatArea) return null;
+                const msg = document.createElement('div');
+                msg.className = `chat-message ${role}-message`;
+                const icon = role === 'user' ? 'pen-square' : 'palette';
+                const thinkingHTML = `<div class="flex gap-2 items-center"><div class="w-2 h-2 bg-white rounded-full animate-pulse"></div><div class="w-2 h-2 bg-white rounded-full animate-pulse [animation-delay:0.2s]"></div><div class="w-2 h-2 bg-white rounded-full animate-pulse [animation-delay:0.4s]"></div></div>`;
+                const contentHTML = isThinking ? thinkingHTML : `<p>${content}</p>`;
+                
+                msg.innerHTML = `
+                    <div class="chat-avatar"><i data-lucide="${icon}"></i></div>
+                    <div class="chat-content w-full">${contentHTML}</div>
+                `;
+                
+                chatArea.appendChild(msg);
+                lucide.createIcons({ nodes: [msg] });
+                chatArea.scrollTop = chatArea.scrollHeight;
+                return msg;
+            }
+
+            // --- [7] INITIAL PAGE LOAD ---
+            // Draw a default pattern on page load
+            startDrawing('flower', 5);
+        });
+    </script>
+</body>
+</html>
